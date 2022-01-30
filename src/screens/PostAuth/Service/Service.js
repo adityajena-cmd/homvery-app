@@ -1,48 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StatusBar, Image, Dimensions,TouchableOpacity, ScrollView } from 'react-native';
 import { Button } from 'react-native-paper';
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Carousel from 'react-native-snap-carousel';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import urlconfig from '../../../config/config.json'
 
 const _animatedStyles = (index, animatedValue, carouselProps) => {
   return;
-    // const sizeRef = carouselProps.vertical ? carouselProps.itemHeight : carouselProps.itemWidth;
-    // const translateProp = carouselProps.vertical ? 'translateY' : 'translateX';
-
-    // return {
-    //     zIndex: carouselProps.data.length - index,
-    //     opacity: animatedValue.interpolate({
-    //         inputRange: [2, 3],
-    //         outputRange: [1, 0]
-    //     }),
-    //     transform: [{
-    //         rotate: animatedValue.interpolate({
-    //             inputRange: [-1, 0, 1, 2, 3],
-    //             outputRange: ['0deg', '0deg', '0deg', '0deg', '0deg'],
-              
-    //         })
-    //     }, {
-    //         [translateProp]: animatedValue.interpolate({
-    //             inputRange: [-1, 0, 1, 2, 3],
-    //             outputRange: [
-    //                 -sizeRef,
-    //                 -sizeRef,
-    //                 -sizeRef, // centered
-    //                 -sizeRef, // centered
-    //                 -sizeRef // centered
-    //             ],
-    //             extrapolate: 'clamp'
-    //         })
-    //     }]
-    // };
+  
 }
-const _renderImageItem = ({ item: ITEM, index }) => {
+const _renderImageItem = ({ item, index }) => {
     return (
       <Image
         key={index}
-        source={require('../../../assets/acImg2.png')}
+        source={item.url?{uri: urlconfig.baseURL+item?.url}: require('../../../assets/acImg2.png')}
         resizeMode={'cover'}
         style={{ height: Dimensions.get('screen').height / 4, width: Dimensions.get('screen').width, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }} />
     );
@@ -54,7 +27,7 @@ const _renderTextItem = ({ item: ITEM, index }) => {
     );
   };
 
-function ImageCarouselComponent() {
+function ImageCarouselComponent({images}) {
   return (
     <Carousel
       slideInterpolatedStyle={_animatedStyles}
@@ -62,7 +35,7 @@ function ImageCarouselComponent() {
       layout={"default"}
       autoplay={true}
       loop={true}
-      data={[1, 2, 3, 4, 5, 6]}
+      data={images}
       sliderWidth={Dimensions.get('screen').width}
       itemWidth={Dimensions.get('screen').width}
       containerCustomStyle={{ height: Dimensions.get('screen').height / 4 }}
@@ -72,7 +45,7 @@ function ImageCarouselComponent() {
 }
 
 
-function Screen1() {
+function Screen1({data}) {
   return (
     <View style={{ flex: 1, backgroundColor: '#ffffff', borderRadius: 15, marginTop: 15, paddingVertical: 10, paddingHorizontal: 20 }}>
       <ScrollView>
@@ -113,9 +86,19 @@ function Screen3() {
 }
 
 const Tab = createMaterialTopTabNavigator();
-export default function Service({ navigation }) {
+export default function Service({ navigation,route }) {
+
+  const [details, setDetails] = useState([]);
+  const [images, setImages] = useState([]);
 
   const messageCarouselRef = React.useRef(null);
+
+  useEffect(() => {
+   console.log(route?.params?.data?.name)
+   setDetails(route?.params?.data?.details)
+   setImages(route?.params?.data?.images)
+  }, []);
+  
   
   function MessageCarouselComponent() {
   return (

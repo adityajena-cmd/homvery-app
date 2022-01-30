@@ -5,6 +5,11 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useNavigation } from '@react-navigation/native';
 
+import SplashScreenComponent from '../screens/PreAuth/SplashScreenComponent';
+import LoginScreen from '../screens/PreAuth/Login';
+import OTPVerify from '../screens/PreAuth/OTPVerify';
+import OnBoarding from '../screens/PreAuth/OnBoarding';
+
 import SearchCity from '../screens/PostAuth/Home/SearchCity';
 import Service from '../screens/PostAuth/Service/Service';
 import HomePage from '../screens/PostAuth/Home/HomePage';
@@ -79,7 +84,35 @@ const AuthNavigator = () => {
 
   const navigation = useNavigation();
   return (
-    <Stack.Navigator initialRouteName="SearchCity">
+    <Stack.Navigator initialRouteName="Splash">
+      <Stack.Screen
+        name="Splash"
+        component={SplashScreenComponent}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="OnBoarding"
+        component={OnBoarding}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="OTPVerify"
+        component={OTPVerify}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="SearchCity"
         component={SearchCity}

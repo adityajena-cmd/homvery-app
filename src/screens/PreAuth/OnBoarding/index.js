@@ -3,40 +3,13 @@ import { View, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper'
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { AppDesign } from '../../../styles/AppDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StyleObj = AppDesign.OnBoarding
 
 const _animatedStyles = (index, animatedValue, carouselProps) => {
-  return;
-    // const sizeRef = carouselProps.vertical ? carouselProps.itemHeight : carouselProps.itemWidth;
-    // const translateProp = carouselProps.vertical ? 'translateY' : 'translateX';
+    return;
 
-    // return {
-    //     zIndex: carouselProps.data.length - index,
-    //     opacity: animatedValue.interpolate({
-    //         inputRange: [2, 3],
-    //         outputRange: [1, 0]
-    //     }),
-    //     transform: [{
-    //         rotate: animatedValue.interpolate({
-    //             inputRange: [-1, 0, 1, 2, 3],
-    //             outputRange: ['0deg', '0deg', '0deg', '0deg', '0deg'],
-              
-    //         })
-    //     }, {
-    //         [translateProp]: animatedValue.interpolate({
-    //             inputRange: [-1, 0, 1, 2, 3],
-    //             outputRange: [
-    //                 -sizeRef,
-    //                 -sizeRef,
-    //                 -sizeRef, // centered
-    //                 -sizeRef, // centered
-    //                 -sizeRef // centered
-    //             ],
-    //             extrapolate: 'clamp'
-    //         })
-    //     }]
-    // };
 }
 
 export default function componentName({ navigation }) {
@@ -73,6 +46,19 @@ export default function componentName({ navigation }) {
             />
         );
     }
+
+    const skipOnBoarding = async() => {
+        try {
+            await AsyncStorage.setItem('ON_BOARD', 'YES');
+            navigation.replace('Login')         
+
+        }
+        catch (err) {
+            console.log(err)
+            alert(err)
+        }
+    }
+
     return (
         <View style={StyleObj.s2}>
             <View style={StyleObj.s3}>
@@ -91,10 +77,10 @@ export default function componentName({ navigation }) {
                     inactiveDotScale={1}
                 />
                 {
-                    pagination !== 0?
+                    pagination !== 0 ?
                         <View style={StyleObj.s6}>
                             <Button onPress={() => {
-                                navigation.push('Login')
+                                skipOnBoarding();
                             }}
                                 style={StyleObj.s7}
                                 mode="contained"
@@ -104,7 +90,8 @@ export default function componentName({ navigation }) {
                         <View style={StyleObj.s9}>
                             <TouchableOpacity
                                 onPress={() => {
-                                    navigation.replace('Login')
+                                    skipOnBoarding();
+                                    
                                 }} style={StyleObj.s10}>
                                 <Text style={StyleObj.s11}>Skip</Text>
                             </TouchableOpacity>
@@ -116,10 +103,10 @@ export default function componentName({ navigation }) {
                             </Button>
                         </View>
                 }
-                
-                
+
+
             </View>
-            
+
         </View>
     );
 }

@@ -4,6 +4,7 @@ import OTPTextInput from 'react-native-otp-textinput'
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import { Button } from 'react-native-paper'
 import { AppDesign } from '../../../styles/AppDesign'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OTPVerify = ({ navigation, route }) => {
     const StyleObj = AppDesign.OtpScreen;
@@ -25,20 +26,21 @@ const OTPVerify = ({ navigation, route }) => {
                         textInputstyle={StyleObj.s8}
                     />
                     <TouchableOpacity onPress={() => {
-                        navigation.replace('Home')
-                    }}><Text style={StyleObj.s9}>If you don't receive a OTP!<Text style={StyleObj.s10}>   Resend</Text></Text></TouchableOpacity>
+                        
+                    }}><Text style={StyleObj.s9}>If you don't receive a OTP!<Text style={StyleObj.s10}>Resend</Text></Text></TouchableOpacity>
                     <Button onPress={() => {
-                        navigation.replace('SearchCity')
+                        navigation.replace('SearchCity');
+
                     }}
                         style={StyleObj.s11}
                         mode="contained"
                     ><Text style={StyleObj.s12}>Verify</Text></Button>
-                    
+
                 </View>
             </View>
             <View style={StyleObj.s13}>
-                        <Image source={require('../../../assets/otpImg2.png')} style={StyleObj.s14} />
-                    </View>
+                <Image source={require('../../../assets/otpImg2.png')} style={StyleObj.s14} />
+            </View>
         </View>
     );
 }

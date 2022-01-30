@@ -2,15 +2,34 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, Image, StatusBar } from 'react-native'
 import { Button } from 'react-native-paper'
 import { AppDesign } from '../../../styles/AppDesign'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
+
 
 const LoginScreen = ({navigation}) => {
     const [value, setvalue] = useState('')
     const StyleObj = AppDesign.Login;
+
+  
+
+    const skipLogin =async() =>{
+        try {
+            await AsyncStorage.setItem('IS_LOGGEDIN', 'ON');
+            navigation.replace("SearchCity");        
+
+        }
+        catch (err) {
+            console.log(err)
+            alert(err)
+        }
+    }
+
+  
     return (
         <View style={StyleObj.s1}>
             <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
             <View>
-                <TouchableOpacity onPress={() => { alert('SKIPPED') }} style={StyleObj.s2}>
+                <TouchableOpacity onPress={() => { skipLogin() }} style={StyleObj.s2}>
                     <Text style={StyleObj.s3}>Skip</Text>
                 </TouchableOpacity>
                
