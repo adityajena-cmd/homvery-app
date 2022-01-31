@@ -6,34 +6,63 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import { Button } from 'react-native-paper';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import Modal from "react-native-modal";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetServices } from '../../../config/Apis/PublicApi';
+import urlConfig from '../../../config/config.json'
 
 export default function HomePage({ navigation }) {
     const [modal, setModal] = React.useState(false);
     const [modal1, setModal1] = React.useState(false);
+    const [city, setCity] = React.useState('loading...');
+    const [services, setServices] = React.useState([]);
+
+
+    const checkCity = async () => {
+        try {
+            let val = await AsyncStorage.getItem('CITY')
+            setCity(val)
+
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+
     React.useEffect(() => {
         // setTimeout(()=>{setModal(true)},2000)
+        checkCity()
+        GetServices()
+            .then(res => {
+                if (res.status === 200) {
+                    setServices(res.data)
+                }
+            }).catch(err => {
+                console.log(err);
+            })
+
     }, [])
-    
+
     const data3 = [
-    "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
-]
+        "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
+    ]
 
     function ServiceBtn(props) {
         return <TouchableOpacity
-            onPress={()=>{navigation.navigate('Service')}}
+            onPress={props.onPress}
             style={{
-            alignItems: 'center',
-            alignContent: 'center',
-            justifyContent: 'center',
-            width: Dimensions.get('screen').width / 4,
-            height: Dimensions.get('screen').width / 4,
-            marginVertical: 0,
-            position: 'relative'
-        }}>
+                alignItems: 'center',
+                alignContent: 'center',
+                justifyContent: 'center',
+                width: Dimensions.get('screen').width / 4,
+                height: Dimensions.get('screen').width / 4,
+                marginVertical: 0,
+                position: 'relative'
+            }}>
             <Image source={props.image} />
             <Text style={{ fontSize: 12, color: '#000000', marginTop: 10, width: Dimensions.get('screen').width / 4 - 30, textAlign: 'center' }}>{props.text}</Text>
-            <View style={{ opacity: 0.7,height: Dimensions.get('screen').width / 4 - 30, width: 0.7, backgroundColor: '#ccc', position: 'absolute', right: 0, marginLeft:1 }} />
-            <View style={{ opacity: 0.7,width: Dimensions.get('screen').width / 4-30, height: 0.5, backgroundColor: '#ccc', position: 'absolute', bottom: 0 }}/>
+            <View style={{ opacity: 0.7, height: Dimensions.get('screen').width / 4 - 30, width: 0.7, backgroundColor: '#ccc', position: 'absolute', right: 0, marginLeft: 1 }} />
+            <View style={{ opacity: 0.7, width: Dimensions.get('screen').width / 4 - 30, height: 0.5, backgroundColor: '#ccc', position: 'absolute', bottom: 0 }} />
         </TouchableOpacity>
     }
 
@@ -46,7 +75,7 @@ export default function HomePage({ navigation }) {
                     <View style={{ paddingHorizontal: 20, paddingTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center', }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center' }}>
                             <Icon name="map-marker" size={25} color={'#ffffff'} />
-                            <Text style={{ color: '#ffffff', fontSize: 15 }}> Bhubaneswar</Text>
+                            <Text style={{ color: '#ffffff', fontSize: 15 }}>{city}</Text>
                         </View>
                         <Icon name="bell" size={25} color={'#ffffff'} />
                     </View>
@@ -54,7 +83,7 @@ export default function HomePage({ navigation }) {
                         <Text style={{ color: '#ffffff', fontSize: 25, fontWeight: '700' }}>Homvery</Text>
                         <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: '700' }}>Services <Text style={{ fontWeight: '400' }}>to suit your</Text> needs</Text>
                     </View>
-                    
+
                 </View>
                 <View style={{ marginTop: -15, marginBottom: 10, flexDirection: 'row', paddingVertical: 0, paddingHorizontal: 20, borderRadius: 10, elevation: 5, alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 20, backgroundColor: '#ffffff' }}>
                     <AntDesign size={20} name="search1" color='#00b0eb' />
@@ -63,7 +92,7 @@ export default function HomePage({ navigation }) {
                         placeholder={'Search City'}
                         maxLength={50}
                         placeholderTextColor={'#d8d8d8'}
-                            
+
                     />
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -72,7 +101,7 @@ export default function HomePage({ navigation }) {
                     <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={require('../../../assets/home2.png')} />
                     <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={require('../../../assets/home1.png')} />
                 </ScrollView>
-                <View style={{ paddingHorizontal: 10, backgroundColor: 'white', marginTop: 15 }}>
+                {false && <View style={{ paddingHorizontal: 10, backgroundColor: 'white', marginTop: 15 }}>
                     <View style={{ backgroundColor: '#ffffff', elevation: 5, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginBottom: 10 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
                             <Text style={{ color: '#00B0EB', fontSize: 18 }}>AC Repair</Text>
@@ -115,7 +144,7 @@ export default function HomePage({ navigation }) {
                         </View>
                         <View style={{ height: 1, backgroundColor: '#DCEBF7', marginTop: 5 }} />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-       
+
                             <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
                                 <View style={{ width: 10, height: 10, borderRadius: 50, backgroundColor: '#41C461', marginRight: 10 }} />
                                 <Text style={{ fontSize: 15, color: '#41C461', fontWeight: '600' }}>Completed</Text>
@@ -129,49 +158,20 @@ export default function HomePage({ navigation }) {
                             {/* <Text style={{ fontSize: 15, color: '#000000', fontWeight: '600' }}>View Details</Text> */}
                         </View>
                     </View>
-                </View>
+                </View>}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10, backgroundColor: '#ffffff', elevation: 5, paddingBottom: 20 }}>
                     <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 20, fontSize: 20, color: '#000000' }}>Our Services</Text>
-                    <ServiceBtn
-                        image={require('../../../assets/s1.png')}
-                        text={'Electrician'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s2.png')}
-                        text={'Plumber'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s3.png')}
-                        text={'AC Service'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s4.png')}
-                        text={'Appliance'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s5.png')}
-                        text={'Packers & Movers'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s6.png')}
-                        text={'Sanitization'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s7.png')}
-                        text={'Purifier'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s8.png')}
-                        text={'DTH Service'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s9.png')}
-                        text={'Laptop/Desktop'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/s10.png')}
-                        text={'House Cleaning'}
-                    />
+
+                    {
+                        services.length > 0 && services.map(item => {
+                            return (<ServiceBtn
+                                image={item.seo?.thumbnail?.url? { uri:urlConfig.baseURL+item.seo?.thumbnail?.url}: require('../../../assets/s1.png')}
+                                text={item.name}
+                                onPress={()=>{ navigation.navigate('Service',{data:item}) }}
+                            />)
+                        })
+                    }
+
                 </View>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10, backgroundColor: '#ffffff', elevation: 5, paddingBottom: 20 }}>
                     <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 20, fontSize: 20, color: '#000000' }}>Book appointment with experts</Text>
@@ -222,7 +222,7 @@ export default function HomePage({ navigation }) {
                             </View>
                         </View>
                         <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
-                        <Text style={{color: '#9D9D9D', fontSize: 11,marginVertical:10, width: Dimensions.get('screen').width / 2}}>
+                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
                             Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
                         </Text>
                         {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
@@ -239,7 +239,7 @@ export default function HomePage({ navigation }) {
                             </View>
                         </View>
                         <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
-                        <Text style={{color: '#9D9D9D', fontSize: 11,marginVertical:10, width: Dimensions.get('screen').width / 2}}>
+                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
                             Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
                         </Text>
                         {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
@@ -256,7 +256,7 @@ export default function HomePage({ navigation }) {
                             </View>
                         </View>
                         <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
-                        <Text style={{color: '#9D9D9D', fontSize: 11,marginVertical:10, width: Dimensions.get('screen').width / 2}}>
+                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
                             Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
                         </Text>
                         {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
@@ -341,7 +341,7 @@ export default function HomePage({ navigation }) {
                             placeholderTextColor={'#ddd'}
                         />
                     </View>
-                    
+
                     <Button
                         onPress={() => { setModal1(false) }}
                         style={{ width: '100%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}

@@ -1,0 +1,5 @@
+{
+    "baseURL":"http://homvery-dev.us-west-2.elasticbeanstalk.com:1337",
+    "transaction_url":"http://35.85.123.247:4200/gateway/makepayment",
+    "mid":"uHnuRf08065935005565"
+}

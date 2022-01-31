@@ -1,12 +1,26 @@
 import React, { useEffect } from 'react'
 import { View, Image } from 'react-native'
 import { AppDesign } from '../../../styles/AppDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const SplashScreenComponent = ({navigation}) => {
+
+
+    const checkOnBoard =async() =>{
+        let onboard = await AsyncStorage.getItem('ON_BOARD')
+        if(onboard === 'YES'){
+            navigation.replace('Login');
+        }else{
+            navigation.replace('OnBoarding');
+        }
+    }
+
+
     useEffect(() => {
         setTimeout(() => {
-            navigation.replace('OnBoarding');
-          }, 3000);
+            checkOnBoard()
+          }, 2000);
     }, [])
     return (
         <View style={AppDesign.splashScreen.s1}>
