@@ -4,18 +4,20 @@ import { Button } from 'react-native-paper'
 import { AppDesign } from '../../../styles/AppDesign'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
+import { ToastAndroid } from 'react-native';
+import { Login } from '../../../config/Apis/AuthApi';
 
 
-const LoginScreen = ({navigation}) => {
-    const [value, setvalue] = useState('')
+const LoginScreen = ({ navigation }) => {
+    const [value, setvalue] = useState('9866257510')
     const StyleObj = AppDesign.Login;
+    const [loading, setLoading] = useState(false);
 
-  
 
-    const skipLogin =async() =>{
+    const skipLogin = async () => {
         try {
-            await AsyncStorage.setItem('IS_LOGGEDIN', 'ON');
-            navigation.replace("SearchCity");        
+            await AsyncStorage.setItem('IS_LOGGEDIN', 'NO');
+            navigation.replace("SearchCity");
 
         }
         catch (err) {
@@ -24,7 +26,36 @@ const LoginScreen = ({navigation}) => {
         }
     }
 
-  
+
+
+    const getOTP = () => {
+
+        if (value === '' || value === null || value.length != 10) {
+            ToastAndroid.show('Enter a Valid Number!', ToastAndroid.SHORT);
+        } else {
+            setLoading(true)
+            Login({
+                phonenumber: value
+            }).then(res => {
+                setLoading(false)
+                console.log(res.data)
+                if (res.status === 200) {
+                    ToastAndroid.show('OTP Sent!', ToastAndroid.SHORT);
+                    navigation.replace('OTPVerify', {
+                        num: value
+                    })
+                }
+            }).catch(err => {
+                setLoading(false)
+
+                ToastAndroid.show(err.response.data.message, ToastAndroid.LONG);
+            })
+
+        }
+    }
+
+
+
     return (
         <View style={StyleObj.s1}>
             <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
@@ -32,7 +63,7 @@ const LoginScreen = ({navigation}) => {
                 <TouchableOpacity onPress={() => { skipLogin() }} style={StyleObj.s2}>
                     <Text style={StyleObj.s3}>Skip</Text>
                 </TouchableOpacity>
-               
+
             </View>
             <View style={StyleObj.s4}>
                 <View style={StyleObj.s5}>
@@ -55,10 +86,11 @@ const LoginScreen = ({navigation}) => {
                     </View>
                 </View>
                 <Button onPress={() => {
-                    navigation.replace('OTPVerify', {
-                        num: value
-                    })
+                    getOTP()
                 }}
+                    disabled={loading}
+                    loading={loading}
+                    color='#05194E'
                     style={StyleObj.s12}
                     mode="contained"
                 ><Text style={StyleObj.s13}>Request OTP</Text></Button>

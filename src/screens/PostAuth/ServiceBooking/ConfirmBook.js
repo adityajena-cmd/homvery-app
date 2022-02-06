@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import { getFullAddress } from '../../../config/Apis/Utils';
 
-export default function ConfirmBooking({navigation}) {
+export default function ConfirmBooking({navigation,route}) {
     const width = Dimensions.get('screen').width;
+    let booking = route?.params?.body
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
@@ -16,7 +18,7 @@ export default function ConfirmBooking({navigation}) {
                 <View style={{ padding: 20 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', }}>
                         <Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>Booking Details</Text>
-                        <TouchableOpacity onPress={() => { }}><Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>BH2908769  <MaterialCommunityIcons size={20} name='content-copy' color={'#000000'} /></Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => { }}><Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{booking?.bookingId}  <MaterialCommunityIcons size={20} name='content-copy' color={'#000000'} /></Text></TouchableOpacity>
                     </View>
                     <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
                     <View style={{ padding: 20 }}>
@@ -35,7 +37,7 @@ export default function ConfirmBooking({navigation}) {
                             </View>
                             <View >
                                 <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Service Location</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>Lorem ipsum dolor sit amet, consetetur ipsum dolor sit amet, consetetur   </Text>
+                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{getFullAddress(booking?.address)}</Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', marginBottom: 20 }}>

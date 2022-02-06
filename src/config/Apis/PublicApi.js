@@ -24,11 +24,17 @@ const GetInventory = (serviceId, city) => {
     return axios.get(urlConfig.baseURL + `/inventories?service.id=${serviceId}&city.name=${city}&active=true`);
 };
 
+const GetReviews = (serviceId) => {
+
+    return axios.get(urlConfig.baseURL + `/servicereviews?serviceId=${serviceId}`);
+};
+
 
 export {
     GetCities,
     GetCategories,
     GetServices,
-    GetInventory
+    GetInventory,
+    GetReviews
 
 }

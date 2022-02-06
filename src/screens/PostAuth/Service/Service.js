@@ -7,8 +7,10 @@ import Fa from 'react-native-vector-icons/FontAwesome';
 import Carousel from 'react-native-snap-carousel';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import urlconfig from '../../../config/config.json'
-import { GetInventory } from '../../../config/Apis/PublicApi';
+import { GetInventory, GetReviews } from '../../../config/Apis/PublicApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Rating } from 'react-native-ratings';
+import moment from 'moment';
 
 const _animatedStyles = (index, animatedValue, carouselProps) => {
   return;
@@ -80,7 +82,7 @@ function Screen2({ priceList, inventoryList }) {
     <View style={{ flex: 1, padding: 10, backgroundColor: '#ffffff', borderRadius: 15, marginTop: 15 }}>
       <Text style={{ fontWeight: '600', fontSize: 18, marginTop: 10 }}>Price Listing</Text>
       {
-        priceList?.length > 0 && priceList?.map(item => 
+        priceList?.length > 0 && priceList?.map(item =>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
             <View style={{ marginTop: 10, flexDirection: 'row' }}>
               <Text style={{ color: '#000000', fontSize: 16 }}>{item.type && item.type}</Text>
@@ -111,169 +113,39 @@ function Screen2({ priceList, inventoryList }) {
   );
 }
 
-function Screen3() {
+function Screen3({ reviews }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#ffffff', borderRadius: 15, marginTop: 15, paddingVertical: 10, paddingHorizontal: 20 }}>
       <ScrollView>
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
-        <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
-            <View style={{ flex: 1, paddingLeft: 20 }}>
-              <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>Lorem ipsum</Text>
-              <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>11 Sep 2021</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star'} size={12} color={'green'} />
-              <Fa name={'star-o'} size={12} color={'green'} />
-            </View>
-          </View>
-          <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam vluptua et dolore magna aliquyam.
-          </Text>
-        </View>
+
+        {
+          reviews && reviews.length > 0 ?
+            reviews.map(item => (
+              <View>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
+                  <View style={{ flex: 1, paddingLeft: 20 }}>
+                    <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>{item?.comments ? item.comments : ''}</Text>
+                    <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>{moment(new Date(item?.created_at)).format('Do MMM YYYY')}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    <Rating
+                      type='custom'
+                      ratingColor='green'
+                      count={5}
+                      ratingTextColor='green'
+                      readonly={true}
+                      startingValue={item?.rating ? item?.rating : 0}
+                      imageSize={12}
+                      style={{ paddingVertical: 10 }}
+                    />
+                  </View>
+                </View>
+                <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>{item?.description ? item.description : ''}</Text>
+              </View>
+            )) :
+            <></>
+        }
         <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
       </ScrollView>
     </View>
@@ -287,13 +159,19 @@ export default function Service({ navigation, route }) {
   const [images, setImages] = useState([]);
   const [priceList, setPriceList] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [rating, setRating] = useState(0);
   const [city, setCity] = useState('');
+  const [isAuth, setAuth] = useState(false);
   let service = route?.params?.data
   const messageCarouselRef = React.useRef(null);
 
   const checkCity = async () => {
     try {
       let val = await AsyncStorage.getItem('CITY')
+      let isLoggedIn = await AsyncStorage.getItem('IS_LOGGEDIN')
+      console.log(isLoggedIn)
+      setAuth(isLoggedIn === 'NO' ? false : true)
       setCity(val)
       GetInventory(service?.id, val)
         .then(res => {
@@ -312,16 +190,29 @@ export default function Service({ navigation, route }) {
     }
   }
 
+  const getReviews = (id) => {
+    GetReviews(id)
+      .then(res => {
+        if (res.status === 200) {
+          setRating(res.data?.avgRating)
+          if (res.data.reviews.length > 0) {
+            setReviews(res.data?.reviews)
+          }
+        }
+      }).catch(err => {
+        console.log('err', err)
+      })
+  }
 
   useEffect(() => {
     checkCity()
-
+    console.log(service?.id)
     service?.service_locations.forEach(item => {
       if (item.city?.name === city) {
         setPriceList(item?.price)
       }
     })
-
+    getReviews(service?.id)
     setDetails(service?.details)
     setImages(service?.images)
 
@@ -373,7 +264,7 @@ export default function Service({ navigation, route }) {
           <Text style={{ fontSize: 20, color: '#ffffff' }}>Air Conditioner Service</Text>
           <View style={{ borderRadius: 10, padding: 5, backgroundColor: '#ffffff', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
             <Icon name="star" size={20} color={'#277B3B'} />
-            <Text style={{ fontSize: 15, color: '#277B3B' }}>  4.3</Text>
+            <Text style={{ fontSize: 15, color: '#277B3B' }}>{rating.toString()}</Text>
           </View>
         </View>
         <View style={{ backgroundColor: '#ffffff', paddingHorizontal: 15, paddingVertical: 10, borderBottomLeftRadius: 15, borderBottomRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
@@ -395,14 +286,19 @@ export default function Service({ navigation, route }) {
         >
           <Tab.Screen name="Details" children={() => <Screen1 data={details} />} />
           <Tab.Screen name="Pricing" children={() => <Screen2 priceList={priceList} inventoryList={inventory} />} />
-          <Tab.Screen name="Reviews" children={() => <Screen3 images={images} />} />
+          <Tab.Screen name="Reviews" children={() => <Screen3 reviews={reviews} />} />
 
         </Tab.Navigator>
       </View>
 
       <View style={{ backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center' }}>
         <Button onPress={() => {
-          navigation.replace('ServiceBooking')
+          if(isAuth){
+            navigation.replace('ServiceBooking',{data:{serviceId:service?.id,servicename:service?.name}})
+          }else{
+            navigation.replace('Login')
+          }
+          
         }}
           style={{ marginVertical: 10, width: '60%', fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
           mode="contained"

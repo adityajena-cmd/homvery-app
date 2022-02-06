@@ -3,7 +3,7 @@ import urlConfig from '../config.json';
 
 
 // {{endpoint}}/api/register/customer
-const loginTechinician = (body) => {
+const loginCustomer = (body) => {
     return axios.post(urlConfig.baseURL + '/auth/login', body);
   };
 
@@ -14,6 +14,6 @@ const validateOtp = (body) => {
 
 
   export {
-    loginTechinician as Login,
+    loginCustomer as Login,
     validateOtp as CheckOTP
   };

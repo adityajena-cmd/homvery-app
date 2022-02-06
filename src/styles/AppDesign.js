@@ -41,7 +41,7 @@ export const AppDesign = {
         s9:{ color: '#000000', fontSize: 20 },
         s10:{ paddingVertical: 0, paddingHorizontal: 20, borderColor: '#00B0EB', borderWidth: 1, borderTopRightRadius: 10, borderBottomRightRadius: 10, flex: 1, borderLeftWidth: 0, alignItems: 'center', justifyContent: 'center' },
         s11:{ width: '100%', color: '#000000', fontSize: 20 },
-        s12:{ marginTop: 20, width: '100%', fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 5 },
+        s12:{ marginTop: 20, width: '100%', fontSize: 20,  borderRadius: 10, paddingVertical: 5 },
         s13:{ color: '#ffffff', fontSize: 20, fontWeight: '400' },
         s14:{ color: '#8A8A8A', fontSize: 12, fontWeight: '500', marginTop: 35 },
         s15:{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center', marginTop: 7 },
@@ -63,7 +63,7 @@ export const AppDesign = {
         s8: { borderRadius: 10, borderWidth: 2, borderColor: '#00B0EB', marginVertical: 20, borderBottomWidth: 2 },
         s9: { color: '#8A8A8A', fontSize: 20, fontWeight: '500', marginTop: 10 },
         s10: { color: '#05194E', fontSize: 20, fontWeight: '500', },
-        s11: { marginTop: 30, width: '60%', fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 5 },
+        s11: { marginTop: 30, width: '60%', fontSize: 20, borderRadius: 10, paddingVertical: 5 },
         s12: { color: '#ffffff', fontSize: 20, fontWeight: '400' },
         s13: { display: 'flex', flex: 1, justifyContent: 'flex-end', alignContent: 'flex-end', alignItems: 'flex-end' },
         s14: { resizeMode: 'contain', width: Dimensions.get('screen').width, }
