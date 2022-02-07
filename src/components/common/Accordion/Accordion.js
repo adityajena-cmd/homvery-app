@@ -6,7 +6,7 @@ import { Button } from 'react-native-paper';
 import { copyClipboard, getFullAddress } from '../../../config/Apis/Utils';
 
 
-export const Accord = ({ data }) => {
+export const Accord = ({ data={} }) => {
     const [accordion, setAccordion] = React.useState(false);
     const width = Dimensions.get('screen').width;
     return (

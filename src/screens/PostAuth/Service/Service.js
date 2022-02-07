@@ -294,7 +294,7 @@ export default function Service({ navigation, route }) {
       <View style={{ backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center' }}>
         <Button onPress={() => {
           if(isAuth){
-            navigation.replace('ServiceBooking',{data:{serviceId:service?.id,servicename:service?.name}})
+            navigation.replace('ServiceBooking',{data:service})
           }else{
             navigation.replace('Login')
           }

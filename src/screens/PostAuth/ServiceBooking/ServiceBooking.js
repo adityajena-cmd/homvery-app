@@ -43,6 +43,7 @@ export default function ServiceBooking({ navigation, route }) {
     let service = route?.params?.data
     const [scheduledDate, setScheduledDate] = React.useState(new Date())
 
+    console.log(service?.id)
     useEffect(() => {
         AsyncStorage.multiGet(
             ['API_TOKEN', 'USER_ID'],
@@ -124,21 +125,24 @@ export default function ServiceBooking({ navigation, route }) {
 
     const updateTime = time => {
         setPreferedTime(time)
-        let current = moment(scheduledDate)
-        let fd = current.add(data1[time].fromTime?.h, 'hours');
-        let td = current.add(data1[time].toTime?.h, 'hours');
-        setFromDate(fd.utc())
-        setToDate(td.utc())
-        console.log(td.utc(), fd.utc())
+        let current = moment(scheduledDate).format('YYYY-MM-DD')
+        let startT = data1[time].fromTime?.h.toString() + ':' + data1[time].fromTime?.m.toString() + '0'
+        let endT = data1[time].toTime?.h.toString() + ':' + data1[time].toTime?.m.toString() + '0'
+        let fd = moment(current + ' ' + startT)
+        let td = moment(current + ' ' + endT)
+
+        setFromDate(fd.utc().utcOffset("+05:30"))
+        setToDate(td.utc().utcOffset("+05:30"))
     }
 
 
     const confirmBooking = () => {
+        setLoading(true)
         const body = {
             "totime": toDate,
             "approval_status": "PENDING",
             "serviceid": service?.id,
-            "bookingId": 'HV'+ (Math.random() * (9000000 - 111) + 111).toString(),
+            "bookingId": 'HV' + (Math.floor(1000000 + Math.random() * 9000000)).toString(),
             "address": selectedAddress,
             "fromtime": fromDate,
             "booking_medium": "APP",
@@ -147,15 +151,20 @@ export default function ServiceBooking({ navigation, route }) {
             "problem": issue
         }
         console.log(body)
-        CreateBooking(body,token)
-        .then(res=>{
-            if(res.status === 200){
-                navigation.navigate('ConfirmBooking',{data:body})
-            }
-        }).catch(err=>{
-            console.log("ERR",err)
-        })
-        
+        CreateBooking(body, token)
+            .then(res => {
+                setLoading(false)
+
+                if (res.status === 200) {
+                    setBottomSheet2(false)
+                    navigation.navigate('ConfirmBooking', { data: body, service: service })
+                }
+            }).catch(err => {
+                setLoading(false)
+
+                console.log("ERR", err)
+            })
+
     }
     return (
         <>
@@ -327,8 +336,8 @@ export default function ServiceBooking({ navigation, route }) {
                 backdropColor={"#000000"}
                 animationType="slideUp"
                 swipeDirection={['down']}
-                onSwipeComplete={() => { setBottomSheet2(false) }}
-                onBackdropPress={() => { setBottomSheet2(false) }}
+                onSwipeComplete={() => { if (!loading) setBottomSheet2(false) }}
+                onBackdropPress={() => { if (!loading) setBottomSheet2(false) }}
                 style={{ margin: 0, justifyContent: "flex-end", }}>
                 <View style={{
                     backgroundColor: '#ffffff',
@@ -345,7 +354,7 @@ export default function ServiceBooking({ navigation, route }) {
                 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', }}>
                         <Text style={{ color: '#000000', fontSize: 20, fontWeight: '500' }}>Booking Details</Text>
-                        <TouchableOpacity onPress={() => { setBottomSheet2(false) }}><MaterialCommunityIcons size={20} name='close' color={'#000000'} /></TouchableOpacity>
+                        <TouchableOpacity onPress={() => { if (!loading) setBottomSheet2(false) }}><MaterialCommunityIcons size={20} name='close' color={'#000000'} /></TouchableOpacity>
                     </View>
                     <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
                     <View style={{ padding: 20 }}>
@@ -355,7 +364,7 @@ export default function ServiceBooking({ navigation, route }) {
                             </View>
                             <View >
                                 <Text style={{ color: '#000000', fontSize: 15, fontWeight: '600' }}>Service Type</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400' }}>{service.servicename}</Text>
+                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400' }}>{service.name}</Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', marginBottom: 20 }}>
@@ -373,7 +382,7 @@ export default function ServiceBooking({ navigation, route }) {
                             </View>
                             <View >
                                 <Text style={{ color: '#000000', fontSize: 15, fontWeight: '600' }}>Date & time</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400' }}>{fromDate + " - " + toDate}</Text>
+                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400' }}>{moment(fromDate).utcOffset("+05:30").format('Do MMM hh:mm a') + " - " + moment(toDate).utcOffset("+05:30").format('Do MMM hh:mm a')}</Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
@@ -389,10 +398,13 @@ export default function ServiceBooking({ navigation, route }) {
                     </View>
                     <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
                         <Button onPress={() => {
-                            setBottomSheet2(false)
+
                             confirmBooking()
                         }}
-                            style={{ width: '60%', marginVertical: 10, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
+                            color="#05194E"
+                            loading={loading}
+                            disabled={loading}
+                            style={{ width: '60%', marginVertical: 10, fontSize: 20, borderRadius: 10, paddingVertical: 0 }}
                             mode="contained"
                         ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Confirm</Text></Button>
                     </View>

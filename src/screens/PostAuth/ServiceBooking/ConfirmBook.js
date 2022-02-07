@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React from 'react';
 import { View, Text, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper';
@@ -6,7 +7,8 @@ import { getFullAddress } from '../../../config/Apis/Utils';
 
 export default function ConfirmBooking({navigation,route}) {
     const width = Dimensions.get('screen').width;
-    let booking = route?.params?.body
+    let booking = route?.params?.data
+    let service = route?.params?.service
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
@@ -28,7 +30,7 @@ export default function ConfirmBooking({navigation,route}) {
                             </View>
                             <View >
                                 <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Service Type</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>Air Conditioner Service</Text>
+                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{service.servicename}</Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', marginBottom: 20 }}>
@@ -46,7 +48,7 @@ export default function ConfirmBooking({navigation,route}) {
                             </View>
                             <View >
                                 <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Date & time</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>12 Sep 2021    12.00 PM - 3.00 PM</Text>
+                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{moment(booking?.fromTime).utcOffset("+05:30").format('Do MMM hh:mm a') + " - " + moment(booking?.toTime).utcOffset("+05:30").format('Do MMM hh:mm a')}</Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
@@ -55,7 +57,7 @@ export default function ConfirmBooking({navigation,route}) {
                             </View>
                             <View >
                                 <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Problem Statement</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt</Text>
+                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{booking?.problem}</Text>
                             </View>
                         </View>
                         

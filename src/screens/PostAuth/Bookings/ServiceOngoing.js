@@ -1,11 +1,16 @@
-import React from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { Accord, BookingStatusCard, Invoice, TrickImg } from './ServiceCompleted';
+import React, { useEffect } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, ToastAndroid } from 'react-native';
+import {Invoice, TrickImg } from './ServiceCompleted';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Button } from 'react-native-paper';
+import { Accord } from '../../../components/common/Accordion/Accordion';
+import { BookingStatusCard } from '../../../components/BookingStatusCard';
+import { validatePathConfig } from '@react-navigation/native';
 
-export const Coupon = ({navigation}) => {
-    return <TouchableOpacity onPress={() => { navigation.navigate('CouponCode') }} style={{ padding: 20, backgroundColor: '#ffffff', borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', marginBottom: 10, elevation: 2 }}>
+export const Coupon = ({navigation,onSelect}) => {
+
+   
+    return <TouchableOpacity onPress={() => { navigation.navigate('CouponCode',{data:{},onSelect:onSelect}) }} style={{ padding: 20, backgroundColor: '#ffffff', borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', marginBottom: 10, elevation: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', }}>
             <Image source={require('../../../assets/coupon.png')} />
             <View style={{ marginLeft: 20 }}>
@@ -20,6 +25,7 @@ export const Coupon = ({navigation}) => {
 
 export default function ServiceOngoing({ navigation }) {
     const [paid, setPaid] = React.useState(false)
+    const [coupon, setCopoun] = React.useState({})
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8', }}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -27,7 +33,9 @@ export default function ServiceOngoing({ navigation }) {
                     <Accord />
                     <BookingStatusCard />
                     <TrickImg />
-                    <Coupon navigation={navigation}/>
+                    <Coupon  navigation={navigation} onSelect={(obj)=>{
+                        setCopoun(obj)
+                    }}/>
                     <Invoice paid={paid} />
                 </View>
                 

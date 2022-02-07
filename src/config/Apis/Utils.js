@@ -6,7 +6,7 @@ import { Linking } from 'react-native'
 
 
 
-const getStatus = (type) => {
+const getStatus = (type="") => {
 
     switch (type) {
       case 'BOOKING_CANCELLED':

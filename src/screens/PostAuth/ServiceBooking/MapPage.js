@@ -1,14 +1,25 @@
 import React from 'react';
-import { View, Text, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Dimensions, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function MapPage({navigation}) {
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
+
+export default function MapPage({ navigation }) {
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <ScrollView>
-                <Image source={require('../../../assets/mappic.png')} resizeMode='contain' style={{ width: Dimensions.get('screen').width, height: Dimensions.get('screen').width * 1.5 }} />
-                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ position: 'absolute', top: 10, left: 20, zIndex: 2, elevation: 2 }}>
+                <MapView
+                style={{...StyleSheet.absoluteFillObject}}
+                    initialRegion={{
+                        latitude: 37.78825,
+                        longitude: -122.4324,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                />
+                {/* <Image source={require('../../../assets/mappic.png')} resizeMode='contain' style={{ width: Dimensions.get('screen').width, height: Dimensions.get('screen').width * 1.5 }} /> */}
+                {/* <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ position: 'absolute', top: 10, left: 20, zIndex: 2, elevation: 2 }}>
                     <MaterialCommunityIcons name='arrow-left' size={25} color={'#000000'} />
                 </TouchableOpacity>
                 <View style={{ paddingHorizontal: 20, paddingTop: 10 }}>
@@ -17,7 +28,7 @@ export default function MapPage({navigation}) {
                         <Text style={{ color: '#000000', fontSize: 15, }}><MaterialCommunityIcons name='map-marker' size={15} color={'#25A8DE'} /> Lorem ipsum dolor sit amet... </Text>
                         <TouchableOpacity><Text>Chnage</Text></TouchableOpacity>
                     </View>
-                </View>
+                </View> */}
             </ScrollView>
             <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8' }}>
                 <Button onPress={() => {

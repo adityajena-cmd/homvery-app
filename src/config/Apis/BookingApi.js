@@ -44,10 +44,16 @@ const CreateBooking = (body, token) => {
 
     return axios.post(urlConfig.baseURL + `/saveBooking`, body,header);
 };
+const GetOffers = (bookingId, token) => {
+    const header = getUserToken(token);
+
+    return axios.get(urlConfig.baseURL + `/eligibleoffers?bookingId=${bookingId}`, header);
+};
 export {
     GetBookings,
     GetTechinicianServices,
     GetBillingDetails,
     GetBookingStatus,
-    CreateBooking
+    CreateBooking,
+    GetOffers
 }

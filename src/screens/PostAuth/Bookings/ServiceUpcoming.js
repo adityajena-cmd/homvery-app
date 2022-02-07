@@ -7,16 +7,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetBookingStatus, GetTechinicianServices } from '../../../config/Apis/BookingApi';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { StepperStage } from '../../../components/common/Stepper';
+import QuotationAcceptModal from '../../../components/QuoatationAcceptModal';
 
 export default function ServiceUpcoming({ navigation, route }) {
 
     let booking = route?.params?.data;
     const [quotationList, setQuotationList] = React.useState([])
+    const [modal, setModal] = React.useState(false)
     const [assingedTo, setAssingedTo] = React.useState({})
     const [stepper, setStepper] = React.useState(0)
     const [isReschedule, setReschedule] = React.useState(false)
     const [isCancel, setCancel] = React.useState(false)
 
+    console.log(booking?.bookingid)
     const updateStatus = (status) => {
         switch (status) {
             case 'TECHNICIAN_STARTED':
@@ -30,6 +33,10 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setReschedule(false)
                 break;
             case 'QUOTATION_CREATED':
+                setStepper(3)
+                setCancel(false)
+                setReschedule(false)
+                setModal(true)
             case 'QUOTATION_APPROVED':
             case 'QUOTATION_REJECTED':
                 setStepper(3)
@@ -46,7 +53,10 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setCancel(false)
                 setReschedule(false)
                 break;
-
+            case 'BOOKING_CREATED':
+                setCancel(true)
+                setReschedule(true)
+                break;
             default:
                 setStepper(0)
                 break;
@@ -93,6 +103,13 @@ export default function ServiceUpcoming({ navigation, route }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
+            <QuotationAcceptModal
+            modal={modal}
+            setModal={setModal}
+            onPress={()=>{
+                navigation.navigate('ServiceOngoing',{data:booking})
+            }}
+            />
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
@@ -108,7 +125,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                     style={{ width: '45%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
                     mode="contained"
                 ><Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '400' }}>Reschedule</Text></Button>}
-                {isCancel && <Button onPress={() => {  }}
+                {isCancel && <Button onPress={() => { }}
                     style={{ width: '45%', marginVertical: 20, fontSize: 20, backgroundColor: '#F8F8F8', borderColor: '#05194E', borderWidth: 2, borderRadius: 10, paddingVertical: 0 }}
                     mode="contained"
                 ><Text style={{ color: '#05194E', fontSize: 15, fontWeight: '400' }}>Cancel</Text></Button>}

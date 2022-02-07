@@ -20,7 +20,7 @@ export const TrickImg = () => {
     )
 }
 
-export const Invoice = ({ quotationList }) => {
+export const Invoice = ({ quotationList=[] }) => {
     const width = Dimensions.get('screen').width;
     return (
         <View style={{ backgroundColor: '#ffffff', borderRadius: 10, elevation: 3, padding: 20 }}>

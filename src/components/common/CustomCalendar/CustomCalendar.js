@@ -12,26 +12,26 @@ const _animatedStyles = (index, animatedValue, carouselProps) => {
 export const getDayAndDate = (date) => {
   const result = [];
   for (let i = 4; i >1; i--) {
-    const day = moment(date).subtract(i, 'days').format('ddd');
-    const date_mom = moment(date).subtract(i, 'days');
+    const day = moment(date).utcOffset("+05:30").subtract(i, 'days').format('ddd');
+    const date_mom = moment(date).utcOffset("+05:30").subtract(i, 'days');
     const res_obj = {
       dateObj:date_mom,
       date: date_mom.format('DD'),
       day: day,
-      active: moment(date).format('DD') === date_mom.format('DD'),
-      timeStamp: moment(date).subtract(i, 'days').utc()
+      active: moment(date).utcOffset("+05:30").format('DD') === date_mom.format('DD'),
+      timeStamp: moment(date).subtract(i, 'days').utc().utcOffset("+05:30")
     }
     result.push(res_obj);
   }
   for (let i = 0; i < 10; i++) {
-    const day = moment(date).add(i, 'days').format('ddd');
-    const date_mom = moment(date).add(i, 'days');
+    const day = moment(date).utcOffset("+05:30").add(i, 'days').format('ddd');
+    const date_mom = moment(date).utcOffset("+05:30").add(i, 'days');
     const res_obj = {
       dateObj:date_mom,
       date: date_mom.format('DD'),
       day: day,
-      active: moment(date).format('DD') === date_mom.format('DD'),
-      timeStamp: moment(date).add(i, 'days').utc()
+      active: moment(date).utcOffset("+05:30").format('DD') === date_mom.format('DD'),
+      timeStamp: moment(date).add(i, 'days').utc().utcOffset("+05:30")
     }
     result.push(res_obj);
   }
@@ -43,7 +43,7 @@ export const getDayAndDate = (date) => {
 export default function CustomCalendar(props) {
   const { timestamp, setTimestamp = () => { } } = props;
   // console.log("setttttt",moment("2012-07-09T19:22:09.1440844Z").format())
-  const [datesArr, setDatesArr] = React.useState(timestamp ? getDayAndDate(moment(timestamp).format()) : getDayAndDate(new Date()));
+  const [datesArr, setDatesArr] = React.useState(timestamp ? getDayAndDate(moment(timestamp).utcOffset("+05:30").format()) : getDayAndDate(new Date()));
   return (
     <View style={{ width: width - 40, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
