@@ -1,27 +1,27 @@
 import React from 'react';
-import { View, Text, ScrollView, Dimensions, TextInput, Image } from 'react-native';
+import { View, Text, ScrollView, Dimensions, TextInput, Image, ToastAndroid } from 'react-native';
 import { Button } from 'react-native-paper';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import Modal from "react-native-modal";
 import { RatingComp } from '../../../components/RatingComp';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GiveReview } from '../../../config/Apis/BookingApi';
+import { GiveDispute, GiveReview } from '../../../config/Apis/BookingApi';
 const data2 = [
     {
-        name: 'Professional experts'
+        name: 'Misbehaved'
     },
     {
-        name: 'On - time service'
+        name: 'Delayed work'
     },
     {
-        name: 'Fair price'
+        name: 'Poor Service'
     },
     {
-        name: 'Well behaved technician'
+        name: 'unprofessional'
     },
     {
-        name: 'Cleaned the workplace'
+        name: 'Fake Technician'
     },
 ]
 
@@ -40,7 +40,7 @@ function BtnGrp(props) {
         <Text style={{ color: props.active ? '#ffffff' : '#00B0EB', fontSize: 10, }}>{props.name}</Text>
     </Button>
 };
-export default function Review({ navigation, route }) {
+export default function Dispute({ navigation, route }) {
     const [problem, setProblem] = React.useState(0);
     const [modal, setModal] = React.useState(false);
     const [loading, setloading] = React.useState(false);
@@ -64,26 +64,23 @@ export default function Review({ navigation, route }) {
                 } else {
                     const body = {
                         active: true,
-                        cleaned_workplace: true,
-                        comments: comments,
+                        problem: comments,
                         createdBy: items[1][1],
                         description: '',
-                        images: [],
-                        rating: rating
                     }
 
-                    GiveReview(body,items[0][1],service?.id)
-                    .then(res=>{
-                        setloading(false)
-                        if(res.status === 200){
-                            setModal(true)
-                        }
+                    GiveDispute(body, items[0][1], service?.id)
+                        .then(res => {
+                            setloading(false)
+                            if (res.status === 200) {
+                                navigation.navigate('Homepage')
+                            }
 
-                    }).catch(err=>{
-                        setloading(false)
-
-                        console.log(err)
-                    })
+                        }).catch(err => {
+                            setloading(false)
+                            ToastAndroid.show("Some Error Occured! try Again later ",ToastAndroid.SHORT)
+                            console.log(err)
+                        })
 
                 }
             })
@@ -97,10 +94,9 @@ export default function Review({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{ paddingHorizontal: 20, paddingVertical: 40 }}>
-                    <RatingComp serviceName={service?.serviceid?.name} onRating={(val) => { setRating(val) }} />
+                <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
                     <View style={{ backgroundColor: '#ffffff', }}>
-                        <Text style={{ width: '100%', textAlign: 'center', color: '#000000', fontSize: 18 }}>What was best</Text>
+                        <Text style={{ width: '100%', textAlign: 'center', color: '#000000', fontSize: 18 }}>What is the Problem ?</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 }}>
 
                             {
@@ -154,40 +150,16 @@ export default function Review({ navigation, route }) {
             </ScrollView>
             <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', elevation: 100, zIndex: 20, backgroundColor: '#F8F8F8' }}>
                 <Button
-                    onPress={() => { submitReview()}}
+                    onPress={() => { submitReview() }}
                     loading={loading}
                     disabled={loading}
                     color='#05194E'
-                    style={{ width: '80%', marginVertical: 20, fontSize: 20,  borderRadius: 10, paddingVertical: 0 }}
+                    style={{ width: '80%', marginVertical: 20, fontSize: 20, borderRadius: 10, paddingVertical: 0 }}
                     mode="contained">
-                    <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Submit your review</Text>
+                    <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Raise your Dispute</Text>
                 </Button>
             </View>
-            <Modal
-                isVisible={modal}
-                hasBackdrop={true}
-                backdropOpacity={0.3}
-                backdropColor={"#000000"}
-                animationType="fadeIn"
-                swipeDirection={['down', "up", "left", "right"]}
-                onSwipeComplete={() => { setModal(false) }}
-                onBackdropPress={() => { setModal(false) }}
-                style={{ margin: 30, justifyContent: "center", }}>
-                <View style={{ backgroundColor: '#ffffff', padding: 20, borderRadius: 15, display: 'flex', alignContent: 'center', alignItems: 'center', }}>
-                    <Image source={require('./../../../assets/reviewed.png')} style={{ width: Dimensions.get('screen').width / 2, height: Dimensions.get('screen').width / 2 }} />
-                    <Text style={{ color: '#00B0EB', textAlign: 'center', fontSize: 25, marginVertical: 10, fontWeight: '700' }}>Thank You</Text>
-                    <Text style={{ color: '#000000', textAlign: 'center', width: '70%', fontWeight: '700' }}>Lorem ipsum dolor sit amet, consetetur Lorem ipsum dolor sit amet, consetetur</Text>
-                    <Button
-                        onPress={() => { navigation.navigate('Homepage') }}
-                        color="#05194E"
-                        loading={loading}
-                        disabled={loading}
-                        style={{ width: '100%', marginVertical: 20, fontSize: 20, borderRadius: 10, paddingVertical: 0 }}
-                        mode="contained">
-                        <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Done</Text>
-                    </Button>
-                </View>
-            </Modal>
+
         </View>
     );
 }

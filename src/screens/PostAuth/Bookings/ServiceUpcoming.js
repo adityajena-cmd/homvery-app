@@ -8,6 +8,7 @@ import { GetBookingStatus, GetTechinicianServices } from '../../../config/Apis/B
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { StepperStage } from '../../../components/common/Stepper';
 import QuotationAcceptModal from '../../../components/QuoatationAcceptModal';
+import { RefreshControl } from 'react-native';
 
 export default function ServiceUpcoming({ navigation, route }) {
 
@@ -37,7 +38,13 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setCancel(false)
                 setReschedule(false)
                 setModal(true)
+                break
             case 'QUOTATION_APPROVED':
+                setStepper(3)
+                setCancel(false)
+                setReschedule(false)
+                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true,paid:false })
+                break
             case 'QUOTATION_REJECTED':
                 setStepper(3)
                 setCancel(false)
@@ -47,6 +54,8 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setStepper(4)
                 setCancel(false)
                 setReschedule(false)
+                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true,paid:true })
+
                 break;
             case 'BOOKING_COMPLETED':
                 setStepper(5)
@@ -62,10 +71,19 @@ export default function ServiceUpcoming({ navigation, route }) {
                 break;
         }
     }
+    const [load, setLoad] = React.useState(0);
+
+
+    const onRefresh = () => {
+        setLoad(load + 1)
+    }
+    const [isRefresh, setRefresh] = React.useState(false);
+
 
 
     useEffect(() => {
-        console.log("ID", booking?.bookingid?.assignedto?.id)
+        setRefresh(true);
+        console.log("IoooooooooooD", booking?.bookingid?.id)
         AsyncStorage.multiGet(
             ['API_TOKEN', 'USER_ID'],
             (err, items) => {
@@ -89,28 +107,36 @@ export default function ServiceUpcoming({ navigation, route }) {
 
                     GetBookingStatus(booking?.bookingid?.id, items[0][1])
                         .then(res => {
+                            setRefresh(false)
                             if (res.status === 200) {
                                 updateStatus(res.data[0]?.bookingstatusid?.name)
                                 console.log(res.data[0])
                             }
                         }).catch(err => {
+                            setRefresh(false)
+
                             console.log(err)
                         })
                 }
             })
-    }, [])
+    }, [load])
 
 
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
             <QuotationAcceptModal
-            modal={modal}
-            setModal={setModal}
-            onPress={()=>{
-                navigation.navigate('ServiceOngoing',{data:booking})
-            }}
+                modal={modal}
+                setModal={setModal}
+                onPress={() => {
+                    navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true,paid:false })
+                }}
             />
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefresh}
+                        onRefresh={onRefresh} />
+                }>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
                     <BookingStatusCard techDetails={assingedTo}

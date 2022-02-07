@@ -103,7 +103,7 @@ export default function ServiceCompleted({ navigation, route }) {
                             console.log(res.data)
                             if (res.status === 200) {
                                 setQuotationList(res.data)
-
+                                
                             }
                         }).catch(err => {
                             console.log(err)

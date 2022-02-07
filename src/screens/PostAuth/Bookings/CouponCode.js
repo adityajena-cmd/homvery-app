@@ -65,7 +65,7 @@ export default function CouponCode({navigation,route}) {
         } else {
           setToken(items[0][1])
           setUserId(items[1][1])
-          GetOffers(59, items[0][1])
+          GetOffers(route?.params?.bookingId, items[0][1])
             .then(res => {
               console.log(res.data)
               if (res.status === 200) {

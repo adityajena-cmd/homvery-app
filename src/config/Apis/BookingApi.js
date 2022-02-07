@@ -20,7 +20,7 @@ const getUserToken = (token, isMultipart = false) => {
 const GetBookings = (userId, token) => {
     const header = getUserToken(token);
 
-    return axios.get(urlConfig.baseURL + `/bookingstatusmaps?bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
+    return axios.get(urlConfig.baseURL + `/bookingstatusmaps?_start=0&_limit=10&bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
 };
 
 const GetTechinicianServices = (techID, token) => {
@@ -42,18 +42,51 @@ const GetBookingStatus = (bookingId, token) => {
 const CreateBooking = (body, token) => {
     const header = getUserToken(token);
 
-    return axios.post(urlConfig.baseURL + `/saveBooking`, body,header);
+    return axios.post(urlConfig.baseURL + `/saveBooking`, body, header);
 };
 const GetOffers = (bookingId, token) => {
     const header = getUserToken(token);
 
     return axios.get(urlConfig.baseURL + `/eligibleoffers?bookingId=${bookingId}`, header);
 };
+const AcceptQuotation = (body, token) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + `/booking/acceptQuotation`, body, header);
+};
+const RejectQuotation = (body, token) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + `/booking/rejectQuotation`, body, header);
+};
+
+const UpdatePayment = (body, token) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + `/booking/paymentCompleted`, body, header);
+}
+
+const GiveReview = (body, token,id) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + `/bookings/`+id, body, header);
+}
+
+const GiveDispute = (body, token,id) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL +  `/bookings/`+id, body, header);
+}
 export {
     GetBookings,
     GetTechinicianServices,
     GetBillingDetails,
     GetBookingStatus,
     CreateBooking,
-    GetOffers
+    GetOffers,
+    AcceptQuotation,
+    RejectQuotation,
+    UpdatePayment,
+    GiveDispute,
+    GiveReview
 }

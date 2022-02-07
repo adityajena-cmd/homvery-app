@@ -29,6 +29,7 @@ import Reward from '../screens/PostAuth/Reward/Reward';
 import ContactUs from '../screens/PostAuth/Profile/ContactUs';
 import AboutUs from '../screens/PostAuth/Profile/AboutUs';
 import PersonalDetails from '../screens/PostAuth/Profile/PersonalDetails';
+import Dispute from '../screens/PostAuth/Bookings/Dispute';
 
 const Stack = createStackNavigator();
 const BottomTab = createMaterialBottomTabNavigator();
@@ -235,6 +236,18 @@ const AuthNavigator = () => {
           </TouchableOpacity>),
           headerTitleAlign: 'center',
           headerTitle: 'Review'
+        }}
+      />
+      <Stack.Screen
+        name="Dispute"
+        component={Dispute}
+        options={{
+          headerShown: true,
+          headerLeft: () => (<TouchableOpacity onPress={() => { navigation.goBack() }}>
+            <MaterialCommunityIcons name="arrow-left" color={'#000000'} style={{ marginHorizontal: 10 }} size={30} />
+          </TouchableOpacity>),
+          headerTitleAlign: 'center',
+          headerTitle: 'Dispute'
         }}
       />
 
