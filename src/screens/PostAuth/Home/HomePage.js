@@ -59,7 +59,7 @@ export default function HomePage({ navigation }) {
                 marginVertical: 0,
                 position: 'relative'
             }}>
-            <Image source={props.image} />
+            <Image source={props.image} style={{width:40,height:40}}/>
             <Text style={{ fontSize: 12, color: '#000000', marginTop: 10, width: Dimensions.get('screen').width / 4 - 30, textAlign: 'center' }}>{props.text}</Text>
             <View style={{ opacity: 0.7, height: Dimensions.get('screen').width / 4 - 30, width: 0.7, backgroundColor: '#ccc', position: 'absolute', right: 0, marginLeft: 1 }} />
             <View style={{ opacity: 0.7, width: Dimensions.get('screen').width / 4 - 30, height: 0.5, backgroundColor: '#ccc', position: 'absolute', bottom: 0 }} />
@@ -164,9 +164,11 @@ export default function HomePage({ navigation }) {
 
                     {
                         services.length > 0 && services.map(item => {
+                            console.log("pic---------------",urlConfig.baseURL+item.displayPic?.url)
                             return (<ServiceBtn
-                                image={item.seo?.thumbnail?.url? { uri:urlConfig.baseURL+item.seo?.thumbnail?.url}: require('../../../assets/s1.png')}
+                                image={item.displayPic?.url ? { uri:urlConfig.baseURL+item.displayPic?.url}: require('../../../assets/s1.png')}
                                 text={item.name}
+                                
                                 onPress={()=>{ navigation.navigate('Service',{data:item}) }}
                             />)
                         })

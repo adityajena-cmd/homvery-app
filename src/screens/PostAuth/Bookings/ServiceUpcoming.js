@@ -1,24 +1,28 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ToastAndroid } from 'react-native';
 import { Button } from 'react-native-paper';
 import { Accord } from '../../../components/common/Accordion/Accordion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GetBookingStatus, GetTechinicianServices } from '../../../config/Apis/BookingApi';
+import { CancelBoking, GetBookingStatus, GetTechinicianServices, RescheduleBooking } from '../../../config/Apis/BookingApi';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { StepperStage } from '../../../components/common/Stepper';
 import QuotationAcceptModal from '../../../components/QuoatationAcceptModal';
 import { RefreshControl } from 'react-native';
+import RescheduleModal from '../../../components/RescheduleModal';
 
 export default function ServiceUpcoming({ navigation, route }) {
 
     let booking = route?.params?.data;
     const [quotationList, setQuotationList] = React.useState([])
     const [modal, setModal] = React.useState(false)
+    const [remodal, setReModal] = React.useState(false)
     const [assingedTo, setAssingedTo] = React.useState({})
     const [stepper, setStepper] = React.useState(0)
     const [isReschedule, setReschedule] = React.useState(false)
     const [isCancel, setCancel] = React.useState(false)
+    const [loading, setLoading] = React.useState(false)
+    const [token, setToken] = React.useState('')
 
     console.log(booking?.bookingid)
     const updateStatus = (status) => {
@@ -43,7 +47,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setStepper(3)
                 setCancel(false)
                 setReschedule(false)
-                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true,paid:false })
+                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true, paid: false })
                 break
             case 'QUOTATION_REJECTED':
                 setStepper(3)
@@ -54,13 +58,18 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setStepper(4)
                 setCancel(false)
                 setReschedule(false)
-                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true,paid:true })
+                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true, paid: true })
 
                 break;
             case 'BOOKING_COMPLETED':
                 setStepper(5)
                 setCancel(false)
                 setReschedule(false)
+                break;
+                case 'BOOKING_RESCHEDULED':
+                setStepper(0)
+                setCancel(true)
+                setReschedule(true)
                 break;
             case 'BOOKING_CREATED':
                 setCancel(true)
@@ -90,6 +99,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 if (err) {
                     console.log("ERROR===================", err);
                 } else {
+                    setToken(items[0][1])
                     if (booking?.bookingid?.assignedto !== null) {
                         GetTechinicianServices(booking?.bookingid?.assignedto?.id, items[0][1])
                             .then(res => {
@@ -122,14 +132,66 @@ export default function ServiceUpcoming({ navigation, route }) {
     }, [load])
 
 
+    const cancelBooking = () => {
+        const body = {
+            "bookingId": booking?.bookingid?.id,
+            "comments": "Aise hie cancel kar diya"
+        }
+
+        CancelBoking(body, token)
+            .then(res => {
+                if (res.status === 200) {
+                    ToastAndroid.show("Booking Canclled", ToastAndroid.SHORT)
+                    navigation.goBack()
+                }
+
+            }).catch(err => {
+                console.log(err)
+            })
+    }
+
+
+    const bookingRescheduled = (from,to,comm) => {
+        setLoading(true)
+        const body = {
+            bookingId: booking?.bookingid?.id,
+            fromTime: from,
+            toTime: to,
+            comments: comm,
+        }
+        console.log(body)
+
+        RescheduleBooking(token, body)
+            .then(res => {
+                setLoading(true)
+
+                console.log("response----", res.data)
+                if (res.status === 200) {
+                   ToastAndroid.show("Booking Rescheduled!",ToastAndroid.SHORT)
+                    navigation.goBack()
+                }
+            }).catch(err => {
+                setLoading(true)
+
+                console.log(err.response.data)
+            })
+
+    }
+
+
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
             <QuotationAcceptModal
                 modal={modal}
                 setModal={setModal}
                 onPress={() => {
-                    navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true,paid:false })
+                    navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: false, paid: false })
                 }}
+            />
+            <RescheduleModal
+                modal={remodal}
+                setModal={setReModal}
+                onReschedule={ bookingRescheduled }
             />
             <ScrollView showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -147,11 +209,13 @@ export default function ServiceUpcoming({ navigation, route }) {
                 </View>
             </ScrollView>
             {(isReschedule || isCancel) && <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
-                {isReschedule && <Button onPress={() => { }}
+                {isReschedule && <Button onPress={() => { setReModal(true) }}
+                loading={loading}
+                disabled={loading}
                     style={{ width: '45%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
                     mode="contained"
                 ><Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '400' }}>Reschedule</Text></Button>}
-                {isCancel && <Button onPress={() => { }}
+                {isCancel && <Button onPress={() => { cancelBooking() }}
                     style={{ width: '45%', marginVertical: 20, fontSize: 20, backgroundColor: '#F8F8F8', borderColor: '#05194E', borderWidth: 2, borderRadius: 10, paddingVertical: 0 }}
                     mode="contained"
                 ><Text style={{ color: '#05194E', fontSize: 15, fontWeight: '400' }}>Cancel</Text></Button>}

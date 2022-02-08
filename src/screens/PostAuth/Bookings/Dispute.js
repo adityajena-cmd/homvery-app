@@ -46,6 +46,7 @@ export default function Dispute({ navigation, route }) {
     const [loading, setloading] = React.useState(false);
     const [rating, setRating] = React.useState(0);
     const [comments, setComments] = React.useState('');
+    const [description, setDescription] = React.useState('');
     let service = route?.params?.data
 
     const updateProblem = (index) => {
@@ -66,7 +67,7 @@ export default function Dispute({ navigation, route }) {
                         active: true,
                         problem: comments,
                         createdBy: items[1][1],
-                        description: '',
+                        description: description,
                     }
 
                     GiveDispute(body, items[0][1], service?.id)
@@ -116,8 +117,8 @@ export default function Dispute({ navigation, route }) {
                             style={{ height: Dimensions.get('screen').width / 4, backgroundColor: '#ffffff', borderRadius: 10, marginTop: 10, paddingHorizontal: 15, paddingVertical: 10, borderColor: '#cccccc', borderRadius: 10, borderWidth: 1 }}
                             multiline={true}
                             textAlignVertical='top'
-                            value={comments}
-                            onChangeText={(txt) => { setComments(txt) }}
+                            value={description}
+                            onChangeText={(txt) => { setDescription(txt) }}
                             placeholder='Please write your problem statement here'
                             placeholderTextColor={'#ddd'}
 

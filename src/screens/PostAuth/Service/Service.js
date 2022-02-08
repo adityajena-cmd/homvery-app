@@ -246,7 +246,7 @@ export default function Service({ navigation, route }) {
           <Fontisto name="arrow-left" color={'#ffffff00'} size={20} />
         </View>
         <View style={{ borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
-          <ImageCarouselComponent />
+          <ImageCarouselComponent images={images} />
         </View>
         <View style={{ position: 'absolute', top: Dimensions.get('screen').height / 6, width: Dimensions.get('screen').width, flexDirection: 'row', justifyContent: 'space-evenly', alignContent: 'center', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
@@ -261,10 +261,10 @@ export default function Service({ navigation, route }) {
       </View>
       <View style={{ elevation: 0, marginHorizontal: 30, marginTop: Dimensions.get('screen').height / 1000 }}>
         <View style={{ backgroundColor: '#25A8DE', paddingHorizontal: 15, paddingVertical: 15, borderTopLeftRadius: 15, borderTopRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 20, color: '#ffffff' }}>Air Conditioner Service</Text>
+          <Text style={{ fontSize: 20, color: '#ffffff' }}>{service?.name}</Text>
           <View style={{ borderRadius: 10, padding: 5, backgroundColor: '#ffffff', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
             <Icon name="star" size={20} color={'#277B3B'} />
-            <Text style={{ fontSize: 15, color: '#277B3B' }}>{rating.toString()}</Text>
+            <Text style={{ fontSize: 15, color: '#277B3B' }}>{rating && rating?.toString()}</Text>
           </View>
         </View>
         <View style={{ backgroundColor: '#ffffff', paddingHorizontal: 15, paddingVertical: 10, borderBottomLeftRadius: 15, borderBottomRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>

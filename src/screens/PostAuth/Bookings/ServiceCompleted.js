@@ -10,15 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { GetBillingDetails, GetTechinicianServices } from '../../../config/Apis/BookingApi';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
-
-export const TrickImg = () => {
-    const width = Dimensions.get('screen').width;
-    return (
-        <TouchableOpacity>
-            <Image style={{ width: width - 40, height: width / 3.5, marginBottom: 5 }} source={require('../../../assets/tricksImg.png')} resizeMode='contain' />
-        </TouchableOpacity>
-    )
-}
+import { TrickImg } from '../../../components/CoinBanner';
 
 export const Invoice = ({ quotationList=[] }) => {
     const width = Dimensions.get('screen').width;
@@ -77,8 +69,20 @@ export const RatingComp = ({ rating }) => {
 export default function ServiceCompleted({ navigation, route }) {
     let booking = route?.params?.data;
     const [quotationList, setQuotationList] = React.useState([])
+    const [coins, setCoins] = React.useState(0)
+
     const [assingedTo, setAssingedTo] = React.useState({})
 
+
+    const checkCoins = (data) => {
+        data.length > 0 &&
+            data.forEach(element => {
+                if (element.type === 'COINS') {
+                    setCoins(Math.abs(element.cost))
+                    return
+                }
+            });
+    }
     useEffect(() => {
         console.log("ID", booking?.bookingid?.review)
         AsyncStorage.multiGet(
@@ -103,6 +107,7 @@ export default function ServiceCompleted({ navigation, route }) {
                             console.log(res.data)
                             if (res.status === 200) {
                                 setQuotationList(res.data)
+                                checkCoins(res.data)
                                 
                             }
                         }).catch(err => {
@@ -118,7 +123,7 @@ export default function ServiceCompleted({ navigation, route }) {
                 <View style={{ padding: 20 }}>
                     <Accord data={booking} />
                     <BookingStatusCard techDetails={assingedTo} status={booking?.bookingstatusid?.name} serviceType={booking?.bookingid?.serviceid?.name} assingedTo={booking?.bookingid?.assignedto} />
-                    <TrickImg />
+                    <TrickImg coins={coins} />
                     <Invoice paid={true} quotationList={quotationList} />
                     <RatingComp rating={booking?.bookingid?.review ? booking?.bookingid?.review : 0} />
                 </View>

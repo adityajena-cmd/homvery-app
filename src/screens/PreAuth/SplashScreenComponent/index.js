@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { View, Image } from 'react-native'
 import { AppDesign } from '../../../styles/AppDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { askAllPermision } from '../../../config/LocaitonProvider';
 
 
 const SplashScreenComponent = ({ navigation }) => {
@@ -19,6 +20,7 @@ const SplashScreenComponent = ({ navigation }) => {
 
 
     useEffect(() => {
+        askAllPermision()
         setTimeout(() => {
             AsyncStorage.multiGet(
                 ['API_TOKEN', 'USER_ID', 'ON_BOARD', 'CITY'],

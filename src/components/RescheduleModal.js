@@ -9,6 +9,20 @@ import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Dimensions } from 'react-native';
 
+
+
+export function BtnGrp(props) {
+    return <Button
+        onPress={props.onPress}
+        mode='contained'
+        style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', backgroundColor: props.active ? '#00B0EB' : '#ffffff', color: '#ffffff', borderRadius: 50, marginBottom: 10, borderColor: '#00B0EB', borderWidth: 1, width: Dimensions.get('screen').width / 2 - 30, alignContent: 'center', alignItems: 'center', ...props.customButtonStyle }}>
+        {
+            props.iconName && <MaterialCommunityIcons style={{ color: props.active ? '#ffffff' : '#00B0EB', fontSize: 15, marginRight: 20 }} name={props.iconName} />
+        }
+        <Text style={{ color: props.active ? '#ffffff' : '#00B0EB', fontSize: 12, }}>{props.name}</Text>
+    </Button>
+};
+
 const RescheduleModal = ({ modal, setModal, onReschedule }) => {
     const [problem, setProblem] = React.useState(0);
 
@@ -28,9 +42,7 @@ const RescheduleModal = ({ modal, setModal, onReschedule }) => {
         {
             name: 'LED Blinking'
         },
-        {
-            name: 'Remote not working'
-        },
+       
         {
             name: 'Remote not working'
         },
@@ -70,11 +82,11 @@ const RescheduleModal = ({ modal, setModal, onReschedule }) => {
                 setToDate(moment(scheduledDate).set(props.toTime));
             }}
             mode='contained'
-            style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', backgroundColor: props.active ? '#4E53C8' : '#ffffff', color: '#ffffff', borderRadius: 50, marginBottom: 10, borderColor: '#4E53C8', borderWidth: 1, width: Dimensions.get('screen').width / 2 - 65, alignContent: 'center', alignItems: 'center', ...props.customButtonStyle }}>
+            style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', backgroundColor: props.active ? '#00B0EB' : '#ffffff', color: '#ffffff', borderRadius: 50, marginBottom: 10, borderColor: '#00B0EB', borderWidth: 1, width: Dimensions.get('screen').width / 2 - 65, alignContent: 'center', alignItems: 'center', ...props.customButtonStyle }}>
             {
-                props.iconName && <MaterialCommunityIcons style={{ color: props.active ? '#ffffff' : '#05194E', fontSize: 15, marginRight: 20 }} name={props.iconName} />
+                props.iconName && <MaterialCommunityIcons style={{ color: props.active ? '#ffffff' : '#00B0EB', fontSize: 15, marginRight: 20 }} name={props.iconName} />
             }
-            <Text style={{ color: props.active ? '#ffffff' : '#4E53C8', fontSize: 11, }}>{props.name}</Text>
+            <Text style={{ color: props.active ? '#ffffff' : '#00B0EB', fontSize: 11, }}>{props.name}</Text>
         </Button>
 
     };
@@ -90,7 +102,7 @@ const RescheduleModal = ({ modal, setModal, onReschedule }) => {
         setFromDate(fd.utc().utcOffset("+05:30"))
         setToDate(td.utc().utcOffset("+05:30"))
     }
- 
+
 
 
     return (
@@ -183,10 +195,9 @@ const RescheduleModal = ({ modal, setModal, onReschedule }) => {
                     <View style={{ paddingHorizontal: 10 }}>
                         <Text style={{ width: '100%', textAlign: 'left', fontWeight: '600', color: '#000000', fontSize: 15 }}>Are you sure to reschedule?</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', marginVertical: 15, }}>
-                            <Button onPress={onReschedule}
-                                color='#05194E'
-                                disabled={loading}
-                                loading={loading}
+                            <Button onPress={()=>{ setModal(false);onReschedule(fromDate, toDate, comments) ;}}
+                                color='#00B0EB'
+                              
                                 style={{ borderRadius: 10, paddingVertical: .5, width: '50%' }}
                                 mode="contained"
                             >
@@ -194,8 +205,8 @@ const RescheduleModal = ({ modal, setModal, onReschedule }) => {
                             </Button>
 
 
-                            <TouchableOpacity onPress={() => { setModal(false) }} style={{ backgroundColor: '#ffffff', borderColor: '#ffffff', borderWidth: 1, borderRadius: 10, paddingVertical: 7, paddingHorizontal: 10, marginLeft: 10, width: '50%' }}>
-                                <Text style={{ color: '#05194E', fontSize: 20, fontWeight: '400', textDecorationLine: 'underline', textAlign: 'center' }}>Cancel</Text>
+                            <TouchableOpacity onPress={() => { setModal(false);}} style={{ backgroundColor: '#ffffff', borderColor: '#00B0EB', borderWidth: 1, borderRadius: 10, paddingVertical: 7, paddingHorizontal: 10, marginLeft: 10, width: '50%' }}>
+                                <Text style={{ color: '#00B0EB', fontSize: 20, fontWeight: '400', textAlign: 'center' }}>Cancel</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -204,3 +215,5 @@ const RescheduleModal = ({ modal, setModal, onReschedule }) => {
         </Modal>
     )
 }
+
+export default RescheduleModal

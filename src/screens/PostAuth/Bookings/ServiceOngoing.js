@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, ToastAndroid, TextInput, Dimensions } from 'react-native';
-import { TrickImg } from './ServiceCompleted';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Button } from 'react-native-paper';
 import { Accord } from '../../../components/common/Accordion/Accordion';
@@ -13,6 +12,7 @@ import Modal from 'react-native-modal';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { getPaytmToken } from '../../../config/Apis/PaymentApis';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
+import { TrickImg } from '../../../components/CoinBanner';
 
 const data3 = [
     "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
@@ -51,12 +51,13 @@ export default function ServiceOngoing({ navigation, route }) {
     let booking = route?.params?.data;
     const [quotationList, setQuotationList] = React.useState([])
     const [discount, setDiscount] = React.useState(0)
+    const [coins, setCoins] = React.useState(0)
     const [rejectModal, setRejectModal] = React.useState(false)
     const [loading, setLoading] = React.useState(false)
 
 
 
-    const updateTransaction = (ptmBody,isSuccess) => {
+    const updateTransaction = (ptmBody, isSuccess) => {
         setLoading(true)
         const body = {
             bookingId: booking?.bookingid?.id,
@@ -64,7 +65,7 @@ export default function ServiceOngoing({ navigation, route }) {
             ...ptmBody
 
         }
-        console.log("method\n\n\n",body)
+        console.log("method\n\n\n", body)
         UpdatePayment(body, token)
             .then(res => {
                 setLoading(false)
@@ -142,6 +143,17 @@ export default function ServiceOngoing({ navigation, route }) {
     }
 
 
+    const checkCoins = (data) => {
+        data.length > 0 &&
+            data.forEach(element => {
+                if (element.type === 'COINS') {
+                    setCoins(Math.abs(element.cost))
+                    return
+                }
+            });
+    }
+
+
 
 
     useEffect(() => {
@@ -160,6 +172,7 @@ export default function ServiceOngoing({ navigation, route }) {
                             console.log("RESPONSE QUOTATIN---------------", res.data.length)
                             if (res.status === 200) {
                                 setQuotationList(res.data)
+                                checkCoins(res.data)
                             }
                         }).catch(err => {
                             console.log(err)
@@ -170,10 +183,18 @@ export default function ServiceOngoing({ navigation, route }) {
 
     const acceptBooking = () => {
         setLoading(true)
-        const body = {
-            "bookingId": booking?.bookingid?.id,
-            "offerId": coupon?.id ? coupon?.id : null
+        let body = {}
+        if (coupon?.id) {
+            body = {
+                "bookingId": booking?.bookingid?.id,
+                "offerId": coupon?.id ? coupon?.id : null
+            }
+        } else {
+            body = {
+                "bookingId": booking?.bookingid?.id,
+            }
         }
+
         AcceptQuotation(body, token).then(res => {
             setLoading(false)
             if (res.status === 200) {
@@ -181,8 +202,7 @@ export default function ServiceOngoing({ navigation, route }) {
             }
         }).catch(err => {
             setLoading(false)
-
-            console.log("accept error----------------", err)
+            console.log("accept error----------------", err.response.data)
         })
     }
 
@@ -218,7 +238,7 @@ export default function ServiceOngoing({ navigation, route }) {
                         serviceType={booking?.bookingid?.serviceid?.name}
                         assingedTo={booking?.bookingid?.assignedto}
                     />
-                    <TrickImg />
+                    {coins > 0 && <TrickImg coins={coins} />}
                     <Coupon
                         isAccepted={isAccepted}
                         copoun={coupon}
@@ -235,11 +255,11 @@ export default function ServiceOngoing({ navigation, route }) {
                 isAccepted && paid ?
                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
                         <Button
-                            onPress={() => { navigation.navigate('Review',{data:booking?.bookingid}) }}
+                            onPress={() => { navigation.navigate('Review', { data: booking?.bookingid }) }}
                             style={{ width: '40%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
                             mode="contained"
                         ><Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '400' }}>Review</Text></Button>
-                        <Button onPress={() => {  navigation.navigate('Dispute',{data:booking?.bookingid}) }}
+                        <Button onPress={() => { navigation.navigate('Dispute', { data: booking?.bookingid }) }}
                             style={{ width: '40%', marginVertical: 20, fontSize: 20, backgroundColor: '#F8F8F8', borderColor: '#05194E', borderWidth: 2, borderRadius: 10, paddingVertical: 0 }}
                             mode="contained"
                         ><Text style={{ color: '#05194E', fontSize: 12, fontWeight: '400' }}>Raise Dispute</Text></Button>

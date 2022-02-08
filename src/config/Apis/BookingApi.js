@@ -20,7 +20,7 @@ const getUserToken = (token, isMultipart = false) => {
 const GetBookings = (userId, token) => {
     const header = getUserToken(token);
 
-    return axios.get(urlConfig.baseURL + `/bookingstatusmaps?_start=0&_limit=10&bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
+    return axios.get(urlConfig.baseURL + `/bookingstatusmaps?_start=0&_limit=30&bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
 };
 
 const GetTechinicianServices = (techID, token) => {
@@ -49,11 +49,25 @@ const GetOffers = (bookingId, token) => {
 
     return axios.get(urlConfig.baseURL + `/eligibleoffers?bookingId=${bookingId}`, header);
 };
+
+const GetAllOffers = ( token) => {
+    const header = getUserToken(token);
+
+    return axios.get(urlConfig.baseURL + `/offers`, header);
+};
+
 const AcceptQuotation = (body, token) => {
     const header = getUserToken(token);
 
     return axios.put(urlConfig.baseURL + `/booking/acceptQuotation`, body, header);
 };
+
+const CancelBoking = (body, token) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + `/booking/cancelBooking`, body, header);
+};
+
 const RejectQuotation = (body, token) => {
     const header = getUserToken(token);
 
@@ -77,6 +91,15 @@ const GiveDispute = (body, token,id) => {
 
     return axios.put(urlConfig.baseURL +  `/bookings/`+id, body, header);
 }
+
+const RescheduleBooking = ( token,body) => {
+    const header = getUserToken(token);
+  
+    return axios.put(urlConfig.baseURL + '/booking/rescheduleBooking',body, header);
+  };
+  
+
+
 export {
     GetBookings,
     GetTechinicianServices,
@@ -88,5 +111,8 @@ export {
     RejectQuotation,
     UpdatePayment,
     GiveDispute,
-    GiveReview
+    GiveReview,
+    GetAllOffers,
+    CancelBoking,
+    RescheduleBooking
 }
