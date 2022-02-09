@@ -157,7 +157,7 @@ export default function ServiceBooking({ navigation, route }) {
 
                 if (res.status === 200) {
                     setBottomSheet2(false)
-                    navigation.navigate('ConfirmBooking', { data: body, service: service })
+                    navigation.navigate('ConfirmBooking', { data: body, service: service,token:token })
                 }
             }).catch(err => {
                 setLoading(false)
@@ -359,10 +359,10 @@ export default function ServiceBooking({ navigation, route }) {
                     <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
                     <View style={{ padding: 20 }}>
                         <View style={{ flexDirection: 'row', marginBottom: 20 }}>
-                            <View style={{ paddingRight: 20 }}>
+                            <View style={{ paddingRight: 20,left:10 }}>
                                 <Image style={{ marginTop: 10 }} source={require('../../../assets/sc1.png')} resizeMode='cover' />
                             </View>
-                            <View >
+                            <View style={{left:10}}>
                                 <Text style={{ color: '#000000', fontSize: 15, fontWeight: '600' }}>Service Type</Text>
                                 <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400' }}>{service.name}</Text>
                             </View>

@@ -29,12 +29,30 @@ const GetReviews = (serviceId) => {
     return axios.get(urlConfig.baseURL + `/servicereviews?serviceId=${serviceId}`);
 };
 
+const GetTopSliders = () => {
+
+    return axios.get(urlConfig.baseURL + `/sliders?_sort=order:ASC&type=HOMEPAGETOP&active=true`);
+};
+
+const GetVideoSliders = () => {
+
+    return axios.get(urlConfig.baseURL + `/sliders?_sort=order:ASC&type=VIDEOS&active=true`);
+};
+
+const GetLocalAdSliders = () => {
+
+    return axios.get(urlConfig.baseURL + `/sliders?_sort=order:ASC&type=LOCALADS&active=true`);
+};
+
 
 export {
     GetCities,
     GetCategories,
     GetServices,
     GetInventory,
-    GetReviews
+    GetReviews,
+    GetLocalAdSliders,
+    GetVideoSliders,
+    GetTopSliders
 
 }

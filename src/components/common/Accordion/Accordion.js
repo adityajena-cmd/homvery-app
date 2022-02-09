@@ -6,7 +6,7 @@ import { Button } from 'react-native-paper';
 import { copyClipboard, getFullAddress } from '../../../config/Apis/Utils';
 
 
-export const Accord = ({ data={} }) => {
+export const Accord = ({ data = {} }) => {
     const [accordion, setAccordion] = React.useState(false);
     const width = Dimensions.get('screen').width;
     return (
@@ -15,7 +15,7 @@ export const Accord = ({ data={} }) => {
                 <Text style={{ color: '#00B0EB', fontSize: 18 }}>Booking Details</Text>
                 {
                     accordion ?
-                        <Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{data?.bookingid?.bookingId}  <MaterialCommunityIcons size={17} onPress={() => { copyClipboard(data?.bookingid?.bookingId) }} name='content-copy' color={'#000000'} /></Text>
+                        <Text onPress={() => { copyClipboard(data?.bookingid?.bookingId) }} style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{data?.bookingid?.bookingId}  <MaterialCommunityIcons size={17} name='content-copy' color={'#000000'} /></Text>
                         :
                         <MaterialCommunityIcons name='chevron-down' size={25} color={'grey'} />
                 }
@@ -25,7 +25,7 @@ export const Accord = ({ data={} }) => {
                 accordion &&
                 <>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: 15, paddingTop: 10, borderTopColor: '#EAE2E2', borderTopWidth: 1 }}>
-                        
+
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 20 }}>
                         <View style={{ paddingRight: 20 }}>
@@ -55,14 +55,14 @@ export const Accord = ({ data={} }) => {
                         </View>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                            <View style={{ paddingRight: 20 }}>
-                                <Image style={{marginTop: 10}} source={require('../../../assets/sc4.png')} resizeMode='cover'/>
-                            </View>
-                            <View >
-                                <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Problem Statement</Text>
-                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{data?.bookingid?.problem}</Text>
-                            </View>
+                        <View style={{ paddingRight: 20 }}>
+                            <Image style={{ marginTop: 10 }} source={require('../../../assets/sc4.png')} resizeMode='cover' />
                         </View>
+                        <View >
+                            <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Problem Statement</Text>
+                            <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{data?.bookingid?.problem}</Text>
+                        </View>
+                    </View>
                 </>
             }
         </TouchableOpacity>

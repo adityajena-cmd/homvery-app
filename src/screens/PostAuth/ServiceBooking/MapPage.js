@@ -10,7 +10,8 @@ export default function MapPage({ navigation }) {
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <ScrollView>
                 <MapView
-                style={{...StyleSheet.absoluteFillObject}}
+                    style={{ flex:1 }}
+                    provider={PROVIDER_GOOGLE}
                     initialRegion={{
                         latitude: 37.78825,
                         longitude: -122.4324,

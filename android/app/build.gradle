@@ -199,6 +199,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-urlconnection:4.2.1"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation project(':react-native-maps')
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'

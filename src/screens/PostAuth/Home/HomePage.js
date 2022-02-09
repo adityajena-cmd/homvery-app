@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, Dimensions, StatusBar, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, Dimensions, StatusBar, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
@@ -7,41 +7,147 @@ import { Button } from 'react-native-paper';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import Modal from "react-native-modal";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GetServices } from '../../../config/Apis/PublicApi';
+import { GetLocalAdSliders, GetServices, GetTopSliders, GetVideoSliders } from '../../../config/Apis/PublicApi';
 import urlConfig from '../../../config/config.json'
+import Loader from '../../../components/Loader';
+import { openBrowser } from '../../../config/Apis/Utils';
+import { GetBookingsHomePage } from '../../../config/Apis/BookingApi';
+import { BookingCard } from '../../../components/BookingCard';
+import { RefreshControl } from 'react-native';
 
 export default function HomePage({ navigation }) {
     const [modal, setModal] = React.useState(false);
     const [modal1, setModal1] = React.useState(false);
     const [city, setCity] = React.useState('loading...');
     const [services, setServices] = React.useState([]);
+    const [tempServices, settempServices] = React.useState([]);
+    const [videoSliders, setVideoSliders] = React.useState([]);
+    const [topSliders, setTopSliders] = React.useState([]);
+    const [localSliders, setLocalSliders] = React.useState([]);
+    const [currentBooking, setCurrentBookings] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
+    const [searchtext, setSearchText] = React.useState('');
 
+    let cureentCity = ''
+    const filterServicesByCity = (services_new, cityId) => {
 
-    const checkCity = async () => {
-        try {
-            let val = await AsyncStorage.getItem('CITY')
-            setCity(val)
+        if (services_new.length > 0 && cityId !== '') {
+
+            return services_new.filter((service) => {
+                let cityFound = false;
+                service.service_locations.every((location) => {
+                    if (location?.city?.name === cityId && location?.user_access) {
+                        cityFound = true;
+                        return false;
+                    }
+                    return true;
+                })
+                return cityFound;
+            })
 
         }
-        catch (err) {
-            console.log(err)
+
+        return services_new;
+    }
+
+
+    const searchServices = (text) => {
+        setSearchText(text)
+        if (text.length > 0) {
+            setServices(services.filter(it => it.name.toLowerCase().includes(text.toLowerCase())))
+        } else {
+            setServices(tempServices)
         }
     }
 
 
+
+    const getSliders = () => {
+        GetTopSliders().then(res => {
+            if (res.data.length > 0) {
+                setTopSliders(res.data)
+            }
+        }).catch(err => {
+            console.log("errTOP", err)
+        })
+        GetVideoSliders().then(res => {
+            if (res.data.length > 0) {
+                setVideoSliders(res.data)
+            }
+        }).catch(err => {
+            console.log("errTOP", err)
+        })
+        GetLocalAdSliders().then(res => {
+            if (res.data.length > 0) {
+                setLocalSliders(res.data)
+            }
+        }).catch(err => {
+            console.log("errTOP", err)
+        })
+    }
+    const [load, setLoad] = React.useState(0);
+
+    const getCurrent = (item) => {
+        if (item.bookingstatusid?.name !== 'BOOKING_CANCELLED' &&
+            item.bookingstatusid?.name !== 'BOOKING_COMPLETED' &&
+            item.bookingstatusid?.name !== 'BOOKING_CREATED' &&
+            item.bookingstatusid?.name !== 'BOOKING_RESCHEDULED' &&
+            item.bookingstatusid?.name !== 'BOOKING_ASSIGNED'
+        ) {
+            return item;
+        }
+    }
+
     React.useEffect(() => {
         // setTimeout(()=>{setModal(true)},2000)
-        checkCity()
-        GetServices()
-            .then(res => {
-                if (res.status === 200) {
-                    setServices(res.data)
-                }
-            }).catch(err => {
-                console.log(err);
-            })
+        getSliders()
+        setLoading(true)
+        AsyncStorage.multiGet(['CITY', 'API_TOKEN', 'USER_ID'], (err, items) => {
+            if (err) {
+                console.log("ERROR===================", err);
+            } else {
+                console.log("DOOM===============", items)
+                cureentCity = items[0][1]
+                setCity(items[0][1])
 
-    }, [])
+                if (items[1][1] !== null && items[2][1] !== null) {
+                    GetBookingsHomePage(items[2][1], items[1][1])
+                        .then(res => {
+                            if (res.status === 200) {
+                                let data = res.data;
+                                let bookings = []
+                                data.forEach(item => {
+                                    let findItem = bookings.find((x) => x.bookingid.id === item.bookingid.id);
+                                    if (!findItem) {
+                                        bookings.push(item)
+                                    }
+                                })
+                                setCurrentBookings(bookings.filter(getCurrent))
+                            }
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                }
+
+                GetServices()
+                    .then(res => {
+                        setLoading(false)
+                        if (res.status === 200) {
+                            let data = filterServicesByCity(res.data, items[0][1])
+                            setServices(data)
+                            settempServices(data)
+                        }
+                    }).catch(err => {
+                        setLoading(false)
+
+                        console.log(err);
+                    })
+            }
+        })
+
+    }, [load])
+
+
 
     const data3 = [
         "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
@@ -59,23 +165,35 @@ export default function HomePage({ navigation }) {
                 marginVertical: 0,
                 position: 'relative'
             }}>
-            <Image source={props.image} style={{width:40,height:40}}/>
+            <Image source={props.image} style={{ width: 40, height: 40 }} />
             <Text style={{ fontSize: 12, color: '#000000', marginTop: 10, width: Dimensions.get('screen').width / 4 - 30, textAlign: 'center' }}>{props.text}</Text>
             <View style={{ opacity: 0.7, height: Dimensions.get('screen').width / 4 - 30, width: 0.7, backgroundColor: '#ccc', position: 'absolute', right: 0, marginLeft: 1 }} />
             <View style={{ opacity: 0.7, width: Dimensions.get('screen').width / 4 - 30, height: 0.5, backgroundColor: '#ccc', position: 'absolute', bottom: 0 }} />
         </TouchableOpacity>
     }
 
+    const onRefresh = () => {
+        setLoad(load + 1)
+    }
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+            <Loader loading={loading} />
             <StatusBar backgroundColor={'#25A8DE'} barStyle={'light-content'} />
-            <ScrollView>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={loading}
+                    onRefresh={onRefresh} />
+            }>
                 <Image style={{ width: Dimensions.get('screen').width }} source={require('../../../assets/hometop.png')} resizeMode='cover' />
                 <View style={{ position: 'absolute', top: 0, width: Dimensions.get('screen').width }}>
                     <View style={{ paddingHorizontal: 20, paddingTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center', }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center' }}>
-                            <Icon name="map-marker" size={25} color={'#ffffff'} />
-                            <Text style={{ color: '#ffffff', fontSize: 15 }}>{city}</Text>
+                            <Icon onPress={() => {
+                                navigation.navigate('SearchCity')
+                            }} name="map-marker" size={25} color={'#ffffff'} />
+                            <Text onPress={() => {
+                                navigation.navigate('SearchCity')
+                            }} style={{ color: '#ffffff', fontSize: 15 }}>{city}</Text>
                         </View>
                         <Icon name="bell" size={25} color={'#ffffff'} />
                     </View>
@@ -91,189 +209,110 @@ export default function HomePage({ navigation }) {
                         style={{ width: '70%', color: '#000000', fontSize: 18, paddingLeft: 20 }}
                         placeholder={'Search City'}
                         maxLength={50}
+                        value={searchtext}
+                        onChangeText={searchServices}
                         placeholderTextColor={'#d8d8d8'}
 
                     />
                 </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={require('../../../assets/home1.png')} />
-                    <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={require('../../../assets/home2.png')} />
-                    <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={require('../../../assets/home2.png')} />
-                    <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={require('../../../assets/home1.png')} />
-                </ScrollView>
-                {false && <View style={{ paddingHorizontal: 10, backgroundColor: 'white', marginTop: 15 }}>
-                    <View style={{ backgroundColor: '#ffffff', elevation: 5, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginBottom: 10 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                            <Text style={{ color: '#00B0EB', fontSize: 18 }}>AC Repair</Text>
-                            <Text style={{ color: '#000000', fontSize: 14 }}><Text style={{ fontWeight: '600' }}>Booking No:</Text> BH2908769</Text>
-                        </View>
-                        <View style={{ height: 1.5, backgroundColor: '#DCEBF7', marginTop: 5 }} />
-                        <View style={{ paddingVertical: 10 }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
-                                <View style={{ flex: 1 }}>
-                                    <View style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'flex-start' }}>
-                                        <MaterialCommunityIcons name="calendar-range" color={'#000000'} size={30} />
-                                        <View style={{ marginLeft: 10 }}>
-                                            <Text style={{ fontSize: 12, color: '#9d9d9d', fontWeight: '600' }}>14-Sep-2021</Text>
-                                            <Text style={{ fontSize: 10, color: '#9d9d9d', fontWeight: '600' }}>(10.00 AM - 1.00 PM)</Text>
-                                        </View>
-                                    </View>
-                                    <View style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'flex-start' }}>
-                                        <MaterialCommunityIcons name="map-marker" color={'#000000'} size={30} />
-                                        <View style={{ marginLeft: 10 }}>
-                                            <Text style={{ fontSize: 12, color: '#9d9d9d', fontWeight: '600' }}>Lorem ipsum dolor...</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                <View style={{ width: 1.5, height: '100%', backgroundColor: '#DCEBF7', marginHorizontal: 10 }} />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ color: '#00B0EB', fontSize: 15, marginBottom: 10 }}>Technician</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Image source={require('../../../assets/user.png')} resizeMode='contain' style={{ height: 40, width: 40 }} />
-                                        <View style={{ marginLeft: 10 }}>
-                                            <Text style={{ color: '#000000', fontSize: 15, marginBottom: 5, fontWeight: '600' }}>Paresh K</Text>
-                                            <View style={{ display: 'flex', flexDirection: 'row' }}>
-                                                <View style={{ backgroundColor: '#277B3B', paddingHorizontal: 5, borderRadius: 5, paddingVertical: 2, }}>
-                                                    <Text style={{ color: '#ffffff', fontSize: 8 }}><MaterialCommunityIcons size={8} name="star" color={'#ffffff'} /> 4.3</Text>
-                                                </View>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                        <View style={{ height: 1, backgroundColor: '#DCEBF7', marginTop: 5 }} />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+                {topSliders.length > 0 && <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {topSliders.length > 0 && topSliders.map(item => {
+                        return <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={item?.image && item?.image?.url ? { uri: item?.image?.url } : require('../../../assets/home1.png')} />
+                    })
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
-                                <View style={{ width: 10, height: 10, borderRadius: 50, backgroundColor: '#41C461', marginRight: 10 }} />
-                                <Text style={{ fontSize: 15, color: '#41C461', fontWeight: '600' }}>Completed</Text>
-                            </View>
-                            <Button
-                                onPress={() => { navigation.navigate('ServiceOngoing') }}
-                                style={{ width: 'auto', fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
-                                mode="contained">
-                                <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '400' }}>Payment</Text>
-                            </Button>
-                            {/* <Text style={{ fontSize: 15, color: '#000000', fontWeight: '600' }}>View Details</Text> */}
-                        </View>
-                    </View>
-                </View>}
+                    }
+                </ScrollView>
+                }
+
+                {
+                    currentBooking.length > 0 &&
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} >
+                        {
+                            currentBooking.map(item => {
+
+                                return <View style={{ padding: 5, margin: 5 }}>
+                                    <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceUpcoming', { data: item }) }} />
+                                </View>
+
+                            })
+                        }
+                    </ScrollView>
+
+                }
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10, backgroundColor: '#ffffff', elevation: 5, paddingBottom: 20 }}>
                     <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 20, fontSize: 20, color: '#000000' }}>Our Services</Text>
 
                     {
                         services.length > 0 && services.map(item => {
-                            console.log("pic---------------",urlConfig.baseURL+item.displayPic?.url)
-                            return (<ServiceBtn
-                                image={item.displayPic?.url ? { uri:urlConfig.baseURL+item.displayPic?.url}: require('../../../assets/s1.png')}
-                                text={item.name}
-                                
-                                onPress={()=>{ navigation.navigate('Service',{data:item}) }}
-                            />)
+                            console.log("pic---------------", item?.category?.name)
+                            if (item?.category?.name === "Services") {
+                                return (<ServiceBtn
+                                    image={item.displayPic?.url ? { uri: urlConfig.baseURL + item.displayPic?.url } : require('../../../assets/s1.png')}
+                                    text={item.name}
+
+                                    onPress={() => { navigation.navigate('Service', { data: item }) }}
+                                />)
+                            } else {
+                                return <></>
+                            }
+
                         })
                     }
 
                 </View>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10, backgroundColor: '#ffffff', elevation: 5, paddingBottom: 20 }}>
                     <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 20, fontSize: 20, color: '#000000' }}>Book appointment with experts</Text>
-                    <ServiceBtn
-                        image={require('../../../assets/b1.png')}
-                        text={'Construction'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/b2.png')}
-                        text={'Interior Design'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/b3.png')}
-                        text={'Wedding Planner'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/b4.png')}
-                        text={'Web/App'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/b5.png')}
-                        text={'Baloon Decoration'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/b6.png')}
-                        text={'Flower Decoration'}
-                    />
-                    <ServiceBtn
-                        image={require('../../../assets/b7.png')}
-                        text={'Solar Installation'}
-                    />
+                    {
+                        services.length > 0 && services.map(item => {
+                            console.log("pic---------------", item?.category?.name)
+                            if (item?.category?.name === "Individual") {
+                                return (<ServiceBtn
+                                    image={item.displayPic?.url ? { uri: urlConfig.baseURL + item.displayPic?.url } : require('../../../assets/s1.png')}
+                                    text={item.name}
+
+                                    onPress={() => { navigation.navigate('Service', { data: item }) }}
+                                />)
+                            } else {
+                                return <></>
+                            }
+
+                        })
+                    }
                 </View>
                 <View style={{ marginVertical: 10, backgroundColor: '#f8f8f8', alignContent: 'center', alignItems: 'center' }}>
                     <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 10, fontSize: 20, color: '#000000' }}>Why Homvery?</Text>
                     <Image source={require('../../../assets/why.png')} style={{ width: Dimensions.get('screen').width - 20, height: Dimensions.get('screen').width / 2.5, borderRadius: 10, marginBottom: 10 }} resizeMode='contain' />
                 </View>
                 <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 10, fontSize: 20, color: '#000000' }}>What our customers are saying</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15, paddingTop: 10, paddingHorizontal: 20 }}>
-                        <View style={{ width: Dimensions.get('screen').width / 2, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                                <Image resizeMode='cover' style={{ width: 20, height: 20, borderRadius: 100 }} source={require('../../../assets/r1.png')} />
-                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>Paresh K.</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                                <MaterialCommunityIcons size={18} name="star" color={'#41C461'} />
-                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>4.3</Text>
-                            </View>
-                        </View>
-                        <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
-                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
-                            Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
-                        </Text>
-                        {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
-                    </View>
-                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15, paddingTop: 10, paddingHorizontal: 20 }}>
-                        <View style={{ width: Dimensions.get('screen').width / 2, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                                <Image resizeMode='cover' style={{ width: 20, height: 20, borderRadius: 100 }} source={require('../../../assets/r1.png')} />
-                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>Paresh K.</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                                <MaterialCommunityIcons size={18} name="star" color={'#41C461'} />
-                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>4.3</Text>
-                            </View>
-                        </View>
-                        <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
-                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
-                            Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
-                        </Text>
-                        {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
-                    </View>
-                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15, paddingTop: 10, paddingHorizontal: 20 }}>
-                        <View style={{ width: Dimensions.get('screen').width / 2, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                                <Image resizeMode='cover' style={{ width: 20, height: 20, borderRadius: 100 }} source={require('../../../assets/r1.png')} />
-                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>Paresh K.</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                                <MaterialCommunityIcons size={18} name="star" color={'#41C461'} />
-                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>4.3</Text>
-                            </View>
-                        </View>
-                        <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
-                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
-                            Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
-                        </Text>
-                        {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
-                    </View>
-                </ScrollView>
+
                 <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 10, fontSize: 20, color: '#000000' }}>Our Videos</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15 }}><Image resizeMode='cover' style={{ width: 200, height: 130, elevation: 10 }} source={require('../../../assets/vid1.png')} /></View>
-                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15 }}><Image resizeMode='cover' style={{ width: 200, height: 130, elevation: 10 }} source={require('../../../assets/vid2.png')} /></View>
-                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15 }}><Image resizeMode='cover' style={{ width: 200, height: 130, elevation: 10 }} source={require('../../../assets/vid3.png')} /></View>
-                </ScrollView>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <Image resizeMode='contain' style={{ width: Dimensions.get('screen').width, height: Dimensions.get('screen').width / 2.9 }} source={require('../../../assets/l1.png')} />
-                    <Image resizeMode='contain' style={{ width: Dimensions.get('screen').width, height: Dimensions.get('screen').width / 2.9 }} source={require('../../../assets/l1.png')} />
-                </ScrollView>
+                {videoSliders.length > 0 && <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {videoSliders.length > 0 && videoSliders.map(item => {
+
+                        return <TouchableOpacity onPress={() => {
+                            if (item?.iframeUrl.length > 0) {
+                                openBrowser(item?.iframeUrl)
+                            }
+                        }}
+                            style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15 }}>
+                            <Image
+                                resizeMode='cover'
+                                style={{ width: 200, height: 130, elevation: 10 }}
+                                source={item?.image && item?.image?.url ? { uri: item?.image?.url } : require('../../../assets/vid1.png')} />
+                        </TouchableOpacity>
+                    })
+                    }
+                </ScrollView>}
+                {localSliders.length > 0 &&
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        {localSliders.length > 0 && localSliders.map(item => {
+
+                            return <Image resizeMode='contain'
+                                style={{ width: Dimensions.get('screen').width, height: Dimensions.get('screen').width / 2.9 }}
+                                source={item?.image && item?.image?.url ? { uri: item?.image?.url } : require('../../../assets/l1.png')} />
+                        })
+                        }
+                    </ScrollView>}
             </ScrollView>
             <TouchableOpacity style={{ position: 'absolute', zIndex: 99, elevation: 5, width: Dimensions.get('screen').width / 7, height: Dimensions.get('screen').width / 7, backgroundColor: '#00B0EB', borderRadius: 1000, display: 'flex', justifyContent: 'center', alignContent: 'center', alignItems: 'center', bottom: 20, right: 20 }}>
                 <Icon name="headset" size={Dimensions.get('screen').width / 15} color={'#ffffff'} />

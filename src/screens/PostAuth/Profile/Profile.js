@@ -9,6 +9,7 @@ import { GetAllLinks, GetUserDeatils } from '../../../config/Apis/ProfileApi';
 import { openBrowser } from '../../../config/Apis/Utils';
 import AsyncStorageLib from '@react-native-async-storage/async-storage';
 import urlConfig from '../../../config/config.json'
+import Loader from '../../../components/Loader'
 export const ProfileTab = (props) => {
     return (
         <TouchableOpacity onPress={props.onPress} style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -30,9 +31,10 @@ export default function Profile({ navigation }) {
     const [user, setUser] = React.useState({});
     const [token, setToken] = React.useState('');
     const [userId, setUserId] = React.useState('');
+    const [loading, setloading] = React.useState(false);
 
     useEffect(() => {
-
+        setloading(true)
         AsyncStorageLib.multiGet(
             ['API_TOKEN', 'USER_ID'],
             (err, items) => {
@@ -44,19 +46,26 @@ export default function Profile({ navigation }) {
 
                     GetUserDeatils(items[1][1], items[0][1])
                         .then(res => {
+                            setloading(false)
                             if (res.status === 200) {
                                 setUser(res?.data)
                             }
                         }).catch(err => {
+                            setloading(false)
+
                             console.log('err', err)
                         })
                     GetAllLinks(items[0][1])
                         .then(res => {
+                            setloading(false)
+
                             if (res.status === 200) {
                                 setLinks(res.data[0])
                             }
                         }).catch(err => {
-                            console.log(error)
+                            setloading(false)
+
+                            console.log(err)
                         })
 
                 }
@@ -92,7 +101,7 @@ export default function Profile({ navigation }) {
         {
             title: 'Contact Us',
             subTitle: 'Contact Us',
-            onPress: () => { navigation.navigate('ContactUs', { data: user, token: token,userId:userId }) },
+            onPress: () => { navigation.navigate('ContactUs', { data: user, token: token, userId: userId }) },
             icon: <Ionicons name='md-people-outline' size={36} color={'#DADADA'} />
         },
         {
@@ -119,6 +128,8 @@ export default function Profile({ navigation }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+            <Loader loading={loading} />
+
             <View style={{ backgroundColor: '#00B0EB', padding: 20 }}>
                 <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 20 }}>My Profile</Text>
             </View>
@@ -132,7 +143,7 @@ export default function Profile({ navigation }) {
                     <Text style={{ fontSize: 14, color: '#707070', marginBottom: 5 }}>{user?.phonenumber}</Text>
                 </View>
                 <View>
-                    <TouchableOpacity onPress={() => { navigation.navigate('PersonalDetails',{data:user,token:token}) }}>
+                    <TouchableOpacity onPress={() => { navigation.navigate('PersonalDetails', { data: user, token: token }) }}>
                         <Text style={{ fontSize: 16, color: '#41C461', marginBottom: 5 }}><MaterialCommunityIcons size={16} name='pencil' /> edit</Text>
                     </TouchableOpacity>
                 </View>

@@ -7,59 +7,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetBookings } from '../../../config/Apis/BookingApi';
 import { CommonActions, useFocusEffect } from '@react-navigation/native';
 import { RefreshControl } from 'react-native';
-import { getFullAddress, getStatus } from '../../../config/Apis/Utils';
+import { getFullAddress, getInitials, getStatus } from '../../../config/Apis/Utils';
 import moment from 'moment';
+import Loader from '../../../components/Loader';
+import { BookingCard } from '../../../components/BookingCard';
 
-export const BookingCard = ({ type, data, onPress = () => { } }) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={{ backgroundColor: '#ffffff', elevation: 5, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginBottom: 10 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: '#00B0EB', fontSize: 20 }}>{data?.bookingid?.serviceid?.name}</Text>
-        <Text style={{ color: '#000000', fontSize: 15 }}><Text style={{ fontWeight: '600' }}>Booking No:</Text>{data?.bookingid?.bookingId}</Text>
-      </View>
-      <View style={{ height: 1, backgroundColor: '#DCEBF7', marginTop: 10 }} />
-      <View style={{ paddingVertical: 10 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'flex-start' }}>
-              <MaterialCommunityIcons name="calendar-range" color={'#000000'} size={30} />
-              <View style={{ marginLeft: 10 }}>
-                <Text style={{ fontSize: 12, color: '#9d9d9d', fontWeight: '600' }}>{moment(new Date(data.bookingid?.fromtime)).format('Do MMM YYYY')}</Text>
-                <Text style={{ fontSize: 10, color: '#9d9d9d', fontWeight: '600' }}>{moment(new Date(data.bookingid?.fromtime)).format('hh:mm a') + " - " + moment(new Date(data.bookingid?.totime)).format('hh:mm a')}</Text>
-              </View>
-            </View>
-            <View style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'flex-start' }}>
-              <MaterialCommunityIcons name="map-marker" color={'#000000'} size={30} />
-              <View style={{ marginLeft: 10 }}>
-                <Text style={{ fontSize: 12, color: '#9d9d9d', fontWeight: '600' }}>{getFullAddress(data.bookingid?.address)}</Text>
-              </View>
-            </View>
-          </View>
-          <View style={{ width: 1, height: '100%', backgroundColor: '#DCEBF7', marginHorizontal: 10 }} />
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: '#00B0EB', fontSize: 15, marginBottom: 10 }}>Technician</Text>
-            <View style={{ flexDirection: 'row' }}>
-              <Image source={require('../../../assets/user.png')} resizeMode='contain' style={{ height: 50, width: 50 }} />
-              <View style={{ marginLeft: 10 }}>
-                <Text style={{ color: '#000000', fontSize: 18, marginBottom: 5, fontWeight: '600' }}>{ data.bookingid?.assignedto?.id?data.bookingid?.assignedto?.firstname + " "+data.bookingid?.assignedto?.lastname :'Not Assinged'}</Text>
-                <View style={{ display: 'flex', flexDirection: 'row' }}>
-                  <View style={{ backgroundColor: '#277B3B', paddingHorizontal: 5, borderRadius: 5, paddingVertical: 2, }}>
-                    <Text style={{ color: '#ffffff', fontSize: 12 }}><MaterialCommunityIcons size={12} name="star" color={'#ffffff'} /> 4.3</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-      <View style={{ height: 1, backgroundColor: '#DCEBF7', marginTop: 10 }} />
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-        {getStatus(type)}
-        <Text style={{ fontSize: 15, color: '#000000', fontWeight: '600' }}>View Details</Text>
-      </View>
-    </TouchableOpacity>
-  )
-}
 
 export default function Bookings({ navigation }) {
 
@@ -139,7 +91,8 @@ export default function Bookings({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-      <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor:'white'}}
+      <Loader loading={isRefresh} />
+      <ScrollView showsVerticalScrollIndicator={false} style={{ backgroundColor: 'white' }}
         refreshControl={
           <RefreshControl
             refreshing={isRefresh}
@@ -156,16 +109,16 @@ export default function Bookings({ navigation }) {
             <Text style={{ color: '#000000', fontSize: 20, fontWeight: '600', marginBottom: 20 }}>Upcoming Bookings</Text>
             {upcomingBookings && upcomingBookings.length > 0 ?
               upcomingBookings.map(item => {
-                return <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceUpcoming',{data:item}) }} />
-              }) : <View style={{flex:1}}><Text style={{ textAlign: 'center', fontSize: 17, marginTop: 15, marginBottom: 20, fontWeight: '600' }}>No Upcoming Bookings Yet.</Text></View>}
+                return <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceUpcoming', { data: item }) }} />
+              }) : <View style={{ flex: 1 }}><Text style={{ textAlign: 'center', fontSize: 17, marginTop: 15, marginBottom: 20, fontWeight: '600' }}>No Upcoming Bookings Yet.</Text></View>}
 
 
 
             <Text style={{ color: '#000000', fontSize: 20, fontWeight: '600', marginVertical: 20 }}>Completed</Text>
             {completedBookings && completedBookings.length > 0 ?
               completedBookings.map(item => {
-                return <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceCompleted',{data:item}) }} />
-              }) : <View style={{flex:1}}><Text style={{ textAlign: 'center', fontSize: 17, marginTop: 15, marginBottom: 20, fontWeight: '600' }}>No Booking Completed Yet.</Text></View>
+                return <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceCompleted', { data: item }) }} />
+              }) : <View style={{ flex: 1 }}><Text style={{ textAlign: 'center', fontSize: 17, marginTop: 15, marginBottom: 20, fontWeight: '600' }}>No Booking Completed Yet.</Text></View>
             }
           </ScrollView>
         </View>

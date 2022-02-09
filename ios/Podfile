@@ -14,6 +14,8 @@ target 'Homvery' do
 
   pod 'react-native-maps', :path => '../node_modules/react-native-maps'
 
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+
   target 'HomveryTests' do
     inherit! :complete
     # Pods for testing

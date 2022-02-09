@@ -11,6 +11,8 @@ import { GetInventory, GetReviews } from '../../../config/Apis/PublicApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Rating } from 'react-native-ratings';
 import moment from 'moment';
+import Loader from '../../../components/Loader';
+import { getInitials } from '../../../config/Apis/Utils';
 
 const _animatedStyles = (index, animatedValue, carouselProps) => {
   return;
@@ -80,29 +82,29 @@ function Screen1({ data }) {
 function Screen2({ priceList, inventoryList }) {
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: '#ffffff', borderRadius: 15, marginTop: 15 }}>
-      <Text style={{ fontWeight: '600', fontSize: 18, marginTop: 10 }}>Price Listing</Text>
+      <Text style={{ fontWeight: '600', fontSize: 15, marginTop: 15 }}>Price Listing</Text>
       {
         priceList?.length > 0 && priceList?.map(item =>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
             <View style={{ marginTop: 10, flexDirection: 'row' }}>
-              <Text style={{ color: '#000000', fontSize: 16 }}>{item.type && item.type}</Text>
+              <Text style={{ color: '#000000', fontSize: 13 }}>{item.type && item.type}</Text>
             </View>
             <View style={{ marginTop: 10 }}>
-              <Text style={{ color: '#000000', fontSize: 16, textAlign: 'right' }}>{item.cost && '₹ ' + item.cost.toString()}</Text>
+              <Text style={{ color: '#000000', fontSize: 13, textAlign: 'right' }}>{item.cost && '₹ ' + item.cost.toString()}</Text>
             </View>
 
           </View>
         )
       }
-      <Text style={{ fontWeight: '600', fontSize: 18, marginTop: 30 }}>Spare Parts</Text>
+      <Text style={{ fontWeight: '600', fontSize: 15, marginTop: 30 }}>Spare Parts</Text>
       {
         inventoryList?.length > 0 && inventoryList?.map(item =>
           <View style={{ flexDirection: 'row', padding: 5, justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
             <View style={{ marginTop: 5, flexDirection: 'row' }}>
-              <Text style={{ color: '#000000', fontSize: 16 }}>{item.item_name && item.item_name}</Text>
+              <Text style={{ color: '#000000', fontSize: 13 }}>{item.item_name && item.item_name}</Text>
             </View>
             <View style={{ marginTop: 5 }}>
-              <Text style={{ color: '#000000', fontSize: 16, textAlign: 'right' }}>{item.price_mask && '₹ ' + item.price_mask.toString()}</Text>
+              <Text style={{ color: '#000000', fontSize: 13, textAlign: 'right' }}>{item.price_mask && '₹ ' + item.price_mask.toString()}</Text>
             </View>
 
           </View>
@@ -123,9 +125,11 @@ function Screen3({ reviews }) {
             reviews.map(item => (
               <View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                  <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />
+                  {item?.createdBy && item?.createdBy?.firstname ? getInitials(item?.createdBy?.firstname, item?.createdBy?.firstname, 30) :
+                    <Image source={require('../../../assets/servUser.png')} style={{ width: Dimensions.get('screen').width / 13, height: Dimensions.get('screen').width / 13 }} resizeMode='contain' />}
+
                   <View style={{ flex: 1, paddingLeft: 20 }}>
-                    <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>{item?.comments ? item.comments : ''}</Text>
+                    <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>{item?.createdBy && item?.createdBy?.firstname ? item?.createdBy?.firstname + " " + item?.createdBy?.lastname : 'Anonymus'}</Text>
                     <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>{moment(new Date(item?.created_at)).format('Do MMM YYYY')}</Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -141,7 +145,7 @@ function Screen3({ reviews }) {
                     />
                   </View>
                 </View>
-                <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>{item?.description ? item.description : ''}</Text>
+                <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>{item?.comments ? item.comments : ''}</Text>
               </View>
             )) :
             <></>
@@ -163,6 +167,7 @@ export default function Service({ navigation, route }) {
   const [rating, setRating] = useState(0);
   const [city, setCity] = useState('');
   const [isAuth, setAuth] = useState(false);
+  const [loading, setLoading] = useState(false);
   let service = route?.params?.data
   const messageCarouselRef = React.useRef(null);
 
@@ -173,13 +178,23 @@ export default function Service({ navigation, route }) {
       console.log(isLoggedIn)
       setAuth(isLoggedIn === 'NO' ? false : true)
       setCity(val)
+      setLoading(true)
+      service?.service_locations.forEach(item => {
+        if (item.city?.name === val) {
+          setPriceList(item?.price)
+        }
+      })
       GetInventory(service?.id, val)
         .then(res => {
+          setLoading(false)
+
           console.log("DATA========", res.data, res.status)
           if (res.status === 200) {
             setInventory(res.data)
           }
         }).catch(err => {
+          setLoading(false)
+
           console.log(err)
         })
 
@@ -191,31 +206,32 @@ export default function Service({ navigation, route }) {
   }
 
   const getReviews = (id) => {
+    setLoading(true)
     GetReviews(id)
       .then(res => {
         if (res.status === 200) {
+          setLoading(false)
+
           setRating(res.data?.avgRating)
           if (res.data.reviews.length > 0) {
             setReviews(res.data?.reviews)
           }
         }
       }).catch(err => {
+        setLoading(false)
+
         console.log('err', err)
       })
   }
 
   useEffect(() => {
+
     checkCity()
     console.log(service?.id)
-    service?.service_locations.forEach(item => {
-      if (item.city?.name === city) {
-        setPriceList(item?.price)
-      }
-    })
+
     getReviews(service?.id)
     setDetails(service?.details)
     setImages(service?.images)
-
 
   }, []);
 
@@ -238,6 +254,7 @@ export default function Service({ navigation, route }) {
 
   return (
     <View style={{ flex: 1 }}>
+      <Loader loading={loading} />
       <StatusBar backgroundColor={'#25A8DE'} barStyle={'light-content'} />
       <View style={{ flex: 1 }}>
         <View style={{ zIndex: 9, position: 'absolute', flexDirection: 'row', justifyContent: 'space-between', padding: 15, width: Dimensions.get('screen').width }}>
@@ -293,12 +310,12 @@ export default function Service({ navigation, route }) {
 
       <View style={{ backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center' }}>
         <Button onPress={() => {
-          if(isAuth){
-            navigation.replace('ServiceBooking',{data:service})
-          }else{
+          if (isAuth) {
+            navigation.replace('ServiceBooking', { data: service })
+          } else {
             navigation.replace('Login')
           }
-          
+
         }}
           style={{ marginVertical: 10, width: '60%', fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
           mode="contained"

@@ -98,7 +98,7 @@ export default function ServiceCompleted({ navigation, route }) {
                                     setAssingedTo(res.data[0])
                                 }
                             }).catch(err => {
-                                console.log(err)
+                                console.log("EROR PRO===========",err.response.data)
                             })
                     }
 
@@ -122,10 +122,10 @@ export default function ServiceCompleted({ navigation, route }) {
             <ScrollView>
                 <View style={{ padding: 20 }}>
                     <Accord data={booking} />
-                    <BookingStatusCard techDetails={assingedTo} status={booking?.bookingstatusid?.name} serviceType={booking?.bookingid?.serviceid?.name} assingedTo={booking?.bookingid?.assignedto} />
-                    <TrickImg coins={coins} />
-                    <Invoice paid={true} quotationList={quotationList} />
-                    <RatingComp rating={booking?.bookingid?.review ? booking?.bookingid?.review : 0} />
+                    {assingedTo?.technician && <BookingStatusCard techDetails={assingedTo} status={booking?.bookingstatusid?.name} serviceType={booking?.bookingid?.serviceid?.name} assingedTo={booking?.bookingid?.assignedto} />}
+                    {quotationList.length>0 &&<TrickImg coins={coins} />}
+                    {quotationList.length>0 && <Invoice paid={true} quotationList={quotationList} />}
+                    <RatingComp  rating={booking?.bookingid?.review ? booking?.bookingid?.review : 0} />
                 </View>
             </ScrollView>
         </View>

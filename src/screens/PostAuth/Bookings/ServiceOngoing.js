@@ -13,6 +13,7 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { getPaytmToken } from '../../../config/Apis/PaymentApis';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
 import { TrickImg } from '../../../components/CoinBanner';
+import Loader from '../../../components/Loader';
 
 const data3 = [
     "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
@@ -157,7 +158,7 @@ export default function ServiceOngoing({ navigation, route }) {
 
 
     useEffect(() => {
-
+        setLoading(true)
         AsyncStorage.multiGet(
             ['API_TOKEN', 'USER_ID'],
             (err, items) => {
@@ -169,12 +170,15 @@ export default function ServiceOngoing({ navigation, route }) {
                     console.log("NEUOhfwre=99999999999999==========================", items[0][1])
                     GetBillingDetails(items[0][1], booking?.bookingid?.id)
                         .then(res => {
+                            setLoading(false)
                             console.log("RESPONSE QUOTATIN---------------", res.data.length)
                             if (res.status === 200) {
                                 setQuotationList(res.data)
                                 checkCoins(res.data)
                             }
                         }).catch(err => {
+                            setLoading(false)
+
                             console.log(err)
                         })
                 }
@@ -229,15 +233,17 @@ export default function ServiceOngoing({ navigation, route }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8', }}>
+            <Loader loading={loading} />
+
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
-                    <BookingStatusCard
+                    {route.params?.assingedTo?.technician && <BookingStatusCard
                         techDetails={route.params?.assingedTo}
                         status={booking?.bookingstatusid?.name}
                         serviceType={booking?.bookingid?.serviceid?.name}
                         assingedTo={booking?.bookingid?.assignedto}
-                    />
+                    />}
                     {coins > 0 && <TrickImg coins={coins} />}
                     <Coupon
                         isAccepted={isAccepted}

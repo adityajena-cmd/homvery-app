@@ -23,10 +23,16 @@ const GetBookings = (userId, token) => {
     return axios.get(urlConfig.baseURL + `/bookingstatusmaps?_start=0&_limit=30&bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
 };
 
+const GetBookingsHomePage = (userId, token) => {
+    const header = getUserToken(token);
+
+    return axios.get(urlConfig.baseURL + `/bookingstatusmaps?_start=0&_limit=4&bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
+};
+
 const GetTechinicianServices = (techID, token) => {
     const header = getUserToken(token);
 
-    return axios.get(urlConfig.baseURL + `/technicianservicesmaps?technicianuser.id=${techID}`, header);
+    return axios.get(urlConfig.baseURL + `/techniciandetails?technician=${techID}`, header);
 };
 
 const GetBillingDetails = (token, bookingId) => {
@@ -114,5 +120,6 @@ export {
     GiveReview,
     GetAllOffers,
     CancelBoking,
-    RescheduleBooking
+    RescheduleBooking,
+    GetBookingsHomePage
 }

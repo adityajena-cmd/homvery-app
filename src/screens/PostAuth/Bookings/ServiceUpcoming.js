@@ -10,6 +10,7 @@ import { StepperStage } from '../../../components/common/Stepper';
 import QuotationAcceptModal from '../../../components/QuoatationAcceptModal';
 import { RefreshControl } from 'react-native';
 import RescheduleModal from '../../../components/RescheduleModal';
+import Loader from '../../../components/Loader';
 
 export default function ServiceUpcoming({ navigation, route }) {
 
@@ -25,7 +26,8 @@ export default function ServiceUpcoming({ navigation, route }) {
     const [token, setToken] = React.useState('')
 
     console.log(booking?.bookingid)
-    const updateStatus = (status) => {
+    const updateStatus = (status,assing) => {
+
         switch (status) {
             case 'TECHNICIAN_STARTED':
                 setStepper(1)
@@ -47,7 +49,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setStepper(3)
                 setCancel(false)
                 setReschedule(false)
-                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true, paid: false })
+                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assing, isAccepted: true, paid: false })
                 break
             case 'QUOTATION_REJECTED':
                 setStepper(3)
@@ -66,7 +68,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setCancel(false)
                 setReschedule(false)
                 break;
-                case 'BOOKING_RESCHEDULED':
+            case 'BOOKING_RESCHEDULED':
                 setStepper(0)
                 setCancel(true)
                 setReschedule(true)
@@ -79,6 +81,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setStepper(0)
                 break;
         }
+
     }
     const [load, setLoad] = React.useState(0);
 
@@ -93,6 +96,7 @@ export default function ServiceUpcoming({ navigation, route }) {
     useEffect(() => {
         setRefresh(true);
         console.log("IoooooooooooD", booking?.bookingid?.id)
+
         AsyncStorage.multiGet(
             ['API_TOKEN', 'USER_ID'],
             (err, items) => {
@@ -106,29 +110,27 @@ export default function ServiceUpcoming({ navigation, route }) {
                                 console.log("Err----------", res.data)
                                 if (res.status === 200) {
                                     setAssingedTo(res.data[0])
-
                                 }
+                                GetBookingStatus(booking?.bookingid?.id, items[0][1])
+                                    .then(result => {
+                                        setRefresh(false)
+                                        if (res.status === 200) {
+                                            updateStatus(result.data[0]?.bookingstatusid?.name,res.data[0])
+                                        }
+                                    }).catch(err => {
+                                        setRefresh(false)
+
+                                        console.log(err)
+                                    })
                             }).catch(err => {
                                 console.log(err)
                             })
                     } else {
                         console.log("ERR", booking?.bookingid?.assignedto?.id)
                     }
-
-                    GetBookingStatus(booking?.bookingid?.id, items[0][1])
-                        .then(res => {
-                            setRefresh(false)
-                            if (res.status === 200) {
-                                updateStatus(res.data[0]?.bookingstatusid?.name)
-                                console.log(res.data[0])
-                            }
-                        }).catch(err => {
-                            setRefresh(false)
-
-                            console.log(err)
-                        })
                 }
             })
+
     }, [load])
 
 
@@ -151,7 +153,7 @@ export default function ServiceUpcoming({ navigation, route }) {
     }
 
 
-    const bookingRescheduled = (from,to,comm) => {
+    const bookingRescheduled = (from, to, comm) => {
         setLoading(true)
         const body = {
             bookingId: booking?.bookingid?.id,
@@ -163,15 +165,15 @@ export default function ServiceUpcoming({ navigation, route }) {
 
         RescheduleBooking(token, body)
             .then(res => {
-                setLoading(true)
+                setLoading(false)
 
                 console.log("response----", res.data)
                 if (res.status === 200) {
-                   ToastAndroid.show("Booking Rescheduled!",ToastAndroid.SHORT)
+                    ToastAndroid.show("Booking Rescheduled!", ToastAndroid.SHORT)
                     navigation.goBack()
                 }
             }).catch(err => {
-                setLoading(true)
+                setLoading(false)
 
                 console.log(err.response.data)
             })
@@ -181,6 +183,8 @@ export default function ServiceUpcoming({ navigation, route }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
+            <Loader loading={isRefresh} />
+
             <QuotationAcceptModal
                 modal={modal}
                 setModal={setModal}
@@ -191,7 +195,7 @@ export default function ServiceUpcoming({ navigation, route }) {
             <RescheduleModal
                 modal={remodal}
                 setModal={setReModal}
-                onReschedule={ bookingRescheduled }
+                onReschedule={bookingRescheduled}
             />
             <ScrollView showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -201,17 +205,17 @@ export default function ServiceUpcoming({ navigation, route }) {
                 }>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
-                    <BookingStatusCard techDetails={assingedTo}
+                    {assingedTo?.technician && <BookingStatusCard techDetails={assingedTo}
                         status={booking?.bookingstatusid?.name}
                         serviceType={booking?.bookingid?.serviceid?.name}
-                        assingedTo={booking?.bookingid?.assignedto} />
+                        assingedTo={booking?.bookingid?.assignedto} />}
                     <StepperStage active={stepper} />
                 </View>
             </ScrollView>
             {(isReschedule || isCancel) && <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
                 {isReschedule && <Button onPress={() => { setReModal(true) }}
-                loading={loading}
-                disabled={loading}
+                    loading={loading}
+                    disabled={loading}
                     style={{ width: '45%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
                     mode="contained"
                 ><Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '400' }}>Reschedule</Text></Button>}
