@@ -7,9 +7,11 @@ import { ButtonGroup } from 'react-native-elements'
 import Modal from "react-native-modal";
 import CustomCalendar from '../../../components/common/CustomCalendar/CustomCalendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GetUserDeatils } from '../../../config/Apis/ProfileApi';
+import { GetUserDeatils, UpdateUserAddress } from '../../../config/Apis/ProfileApi';
 import moment from 'moment';
 import { CreateBooking } from '../../../config/Apis/BookingApi';
+import { useFocusEffect } from '@react-navigation/native';
+import Loader from '../../../components/Loader';
 
 
 export function BtnGrp(props) {
@@ -42,28 +44,35 @@ export default function ServiceBooking({ navigation, route }) {
     const [selectedAddress, setSelectedAddress] = React.useState({});
     let service = route?.params?.data
     const [scheduledDate, setScheduledDate] = React.useState(new Date())
+    const [load, setLoad] = React.useState(0);
 
     console.log(service?.id)
-    useEffect(() => {
-        AsyncStorage.multiGet(
-            ['API_TOKEN', 'USER_ID'],
-            (err, items) => {
-                if (err) {
-                    console.log("ERROR===================", err);
-                } else {
-                    setToken(items[0][1])
-                    setUserId(items[1][1])
-                    GetUserDeatils(items[1][1], items[0][1])
-                        .then(res => {
-                            if (res.status === 200) {
-                                setAddress(res?.data?.address)
-                            }
-                        }).catch(err => {
-                            console.log('err', err)
-                        })
-                }
-            })
-    }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            setLoading(true)
+            AsyncStorage.multiGet(
+                ['API_TOKEN', 'USER_ID'],
+                (err, items) => {
+                    if (err) {
+                        console.log("ERROR===================", err);
+                    } else {
+                        setToken(items[0][1])
+                        setUserId(items[1][1])
+                        GetUserDeatils(items[1][1], items[0][1])
+                            .then(res => {
+                                setLoading(false)
+
+                                if (res.status === 200) {
+                                    setAddress(res?.data?.address)
+                                }
+                            }).catch(err => {
+                                setLoading(false)
+
+                                console.log('err', err)
+                            })
+                    }
+                })
+        }, [load]))
 
     const data1 = [
         {
@@ -108,13 +117,16 @@ export default function ServiceBooking({ navigation, route }) {
 
     const getAddresLogo = (type = 'home') => {
         switch (type) {
+            case 'Home':
             case 'home':
                 return 'home-variant-outline'
                 break
+            case 'Work':
             case 'work':
                 return 'office-building'
                 break
             case 'other':
+            case 'Other':
                 return 'map-marker-outline'
                 break
             default:
@@ -122,6 +134,35 @@ export default function ServiceBooking({ navigation, route }) {
 
         }
     }
+
+
+    const removeAddress = (id) => {
+        setLoading(true)
+        let newList = address.map((item) => {
+            if (item.id === id) {
+                let updatedItem = {
+                    ...item,
+                    active: false,
+                };
+
+                return updatedItem;
+            }
+
+            return item;
+        });
+
+        UpdateUserAddress(userId, token, { address: newList })
+            .then(res => {
+                setLoading(false)
+                if (res.status === 200) {
+                    setLoad(load + 1)
+                }
+            }).catch(err => {
+                setLoading(false)
+                console.log(err)
+            })
+    }
+
 
     const updateTime = time => {
         setPreferedTime(time)
@@ -157,7 +198,7 @@ export default function ServiceBooking({ navigation, route }) {
 
                 if (res.status === 200) {
                     setBottomSheet2(false)
-                    navigation.navigate('ConfirmBooking', { data: body, service: service,token:token })
+                    navigation.navigate('ConfirmBooking', { data: body, service: service, token: token })
                 }
             }).catch(err => {
                 setLoading(false)
@@ -169,6 +210,7 @@ export default function ServiceBooking({ navigation, route }) {
     return (
         <>
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+                <Loader loading={loading} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ flex: 1 }}>
                         <View style={{ backgroundColor: '#ffffff', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', padding: 20, elevation: 7, zIndex: 10 }}>
@@ -249,7 +291,9 @@ export default function ServiceBooking({ navigation, route }) {
                     <Button onPress={() => {
                         setBottomSheet2(true)
                     }}
-                        style={{ width: '70%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
+                        disabled={selectedAddress?.city === undefined}
+                        color='#05194E'
+                        style={{ width: '70%', marginVertical: 20, fontSize: 20, borderRadius: 10, paddingVertical: 0 }}
                         mode="contained"
                     ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Proceed to Book</Text></Button>
                 </View>
@@ -283,7 +327,8 @@ export default function ServiceBooking({ navigation, route }) {
 
                     </View>
                     <Button onPress={() => {
-                        navigation.navigate('MapPage')
+                        setBottomSheet(false)
+                        navigation.navigate('MapPage', { data: address })
                     }}
                         style={{ marginVertical: 10, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
                         mode="contained"
@@ -293,34 +338,40 @@ export default function ServiceBooking({ navigation, route }) {
                     {
                         address && address.length > 0 ?
                             address.map(item => {
-                                return (
-                                    <>
-                                        <TouchableOpacity activeOpacity={0.9} onPress={() => { setAddressLine(item?.addressline1 + ", " + item?.city); setSelectedAddress(item); setBottomSheet(false) }} style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'flex-start', }}>
-                                            <MaterialCommunityIcons size={40} color={'#000000'} name={getAddresLogo(item?.type)} />
-                                            <View style={{ flex: 1, paddingLeft: 20 }}>
-                                                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{item?.alias ? item?.alias : 'N/A'}</Text>
-                                                <Text style={{ color: '##707070', fontSize: 12, fontWeight: '500' }}>{(item?.addressline1 ? item?.addressline1 : 'N/A') + ", " + (item?.pincode && item.pincode) + ",\n" + (item?.city && item?.city)}</Text>
-                                                <Text style={{ color: '##707070', fontSize: 12, fontWeight: '500' }}>{item?.phoneNumber ? item?.phoneNumber : 'N/A'}</Text>
-                                                <View style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', marginTop: 10 }}>
-                                                    <Button
-                                                        onPress={() => { }}
-                                                        mode='contained'
-                                                        style={{ backgroundColor: '#ffffff', color: '#ffffff', borderRadius: 5, marginBottom: 10, borderColor: '#00B0EB', borderWidth: 1, }}>
-                                                        <Text style={{ color: '#00B0EB', fontSize: 12, }}>Edit</Text>
-                                                    </Button>
-                                                    <Button
-                                                        onPress={() => { }}
-                                                        mode='contained'
-                                                        style={{ marginLeft: 20, backgroundColor: '#ffffff', color: '#ffffff', borderRadius: 5, marginBottom: 10, borderColor: '#ffffff', borderWidth: 1, }}>
-                                                        <Text style={{ color: '#00B0EB', fontSize: 12, }}>Remove</Text>
-                                                    </Button>
-                                                </View>
-                                            </View>
-                                        </TouchableOpacity>
-                                        <View style={{ height: 1, backgroundColor: '#EAE2E2', marginBottom: 10 }} />
+                                if (item.active) {
 
-                                    </>
-                                )
+
+                                    return (
+                                        <>
+                                            <TouchableOpacity activeOpacity={0.9} onPress={() => { setAddressLine(item?.addressline1 + ", " + item?.city); setSelectedAddress(item); setBottomSheet(false) }} style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'flex-start', }}>
+                                                <MaterialCommunityIcons size={40} color={'#000000'} name={getAddresLogo(item?.type)} />
+                                                <View style={{ flex: 1, paddingLeft: 20 }}>
+                                                    <Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{item?.alias ? item?.alias : 'N/A'}</Text>
+                                                    <Text style={{ color: '##707070', fontSize: 12, fontWeight: '500' }}>{(item?.addressline1 ? item?.addressline1 : 'N/A') + ", " + (item?.pincode && item.pincode) + ",\n" + (item?.city && item?.city)}</Text>
+                                                    <Text style={{ color: '##707070', fontSize: 12, fontWeight: '500' }}>{item?.phoneNumber ? item?.phoneNumber : 'N/A'}</Text>
+                                                    <View style={{ flexDirection: 'row', alignContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                                        <Button
+                                                            onPress={() => { navigation.navigate('AddressEditPage', { coords: [item.latitude, item.longitude], address: address, initialValue: item }) }}
+                                                            mode='contained'
+                                                            style={{ backgroundColor: '#ffffff', color: '#ffffff', borderRadius: 5, marginBottom: 10, borderColor: '#00B0EB', borderWidth: 1, }}>
+                                                            <Text style={{ color: '#00B0EB', fontSize: 12, }}>Edit</Text>
+                                                        </Button>
+                                                        <Button
+                                                            onPress={() => {
+                                                                removeAddress(item.id)
+                                                            }}
+                                                            mode='contained'
+                                                            style={{ marginLeft: 20, backgroundColor: '#ffffff', color: '#ffffff', borderRadius: 5, marginBottom: 10, borderColor: '#ffffff', borderWidth: 1, }}>
+                                                            <Text style={{ color: '#00B0EB', fontSize: 12, }}>Remove</Text>
+                                                        </Button>
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>
+                                            <View style={{ height: 1, backgroundColor: '#EAE2E2', marginBottom: 10 }} />
+
+                                        </>
+                                    )
+                                }
                             }) : <>
                                 <Text style={{ textAlign: 'center', fontSize: 17, marginTop: 15, marginBottom: 20, fontWeight: '600' }}>No Address Found! Please add some new address.</Text></>
                     }
@@ -359,10 +410,10 @@ export default function ServiceBooking({ navigation, route }) {
                     <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
                     <View style={{ padding: 20 }}>
                         <View style={{ flexDirection: 'row', marginBottom: 20 }}>
-                            <View style={{ paddingRight: 20,left:10 }}>
+                            <View style={{ paddingRight: 20, left: 10 }}>
                                 <Image style={{ marginTop: 10 }} source={require('../../../assets/sc1.png')} resizeMode='cover' />
                             </View>
-                            <View style={{left:10}}>
+                            <View style={{ left: 10 }}>
                                 <Text style={{ color: '#000000', fontSize: 15, fontWeight: '600' }}>Service Type</Text>
                                 <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400' }}>{service.name}</Text>
                             </View>

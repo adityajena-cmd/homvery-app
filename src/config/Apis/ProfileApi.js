@@ -54,11 +54,18 @@ const UpdateUser = (userId, token, formData) => {
     return axios.put(urlConfig.baseURL + '/users/' + userId, formData, header);
 };
 
+const UpdateUserAddress = (userId, token, body) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + '/users/' + userId, body, header);
+};
+
 export {
     GetUserDeatils,
     UpdateUserDeatils,
     GetAllLinks,
     ContactUs as ContactHomevery,
     UploadProfile,
-    UpdateUser
+    UpdateUser,
+    UpdateUserAddress
 }

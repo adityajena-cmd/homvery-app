@@ -285,6 +285,62 @@ export default function HomePage({ navigation }) {
                 </View>
                 <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 10, fontSize: 20, color: '#000000' }}>What our customers are saying</Text>
 
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15, paddingTop: 10, paddingHorizontal: 20 }}>
+                        <View style={{ width: Dimensions.get('screen').width / 2, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                                <Image resizeMode='cover' style={{ width: 20, height: 20, borderRadius: 100 }} source={require('../../../assets/r1.png')} />
+                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>Paresh K.</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                                <MaterialCommunityIcons size={18} name="star" color={'#41C461'} />
+                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>4.3</Text>
+                            </View>
+                        </View>
+                        <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
+                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
+                            Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
+                        </Text>
+                        {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
+                    </View>
+                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15, paddingTop: 10, paddingHorizontal: 20 }}>
+                        <View style={{ width: Dimensions.get('screen').width / 2, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                                <Image resizeMode='cover' style={{ width: 20, height: 20, borderRadius: 100 }} source={require('../../../assets/r1.png')} />
+                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>Paresh K.</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                                <MaterialCommunityIcons size={18} name="star" color={'#41C461'} />
+                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>4.3</Text>
+                            </View>
+                        </View>
+                        <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
+                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
+                            Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
+                        </Text>
+                        {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
+                    </View>
+                    <View style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15, paddingTop: 10, paddingHorizontal: 20 }}>
+                        <View style={{ width: Dimensions.get('screen').width / 2, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                                <Image resizeMode='cover' style={{ width: 20, height: 20, borderRadius: 100 }} source={require('../../../assets/r1.png')} />
+                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>Paresh K.</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
+                                <MaterialCommunityIcons size={18} name="star" color={'#41C461'} />
+                                <Text style={{ marginLeft: 7, fontSize: 12, color: '#000000', fontWeight: '600' }}>4.3</Text>
+                            </View>
+                        </View>
+                        <View style={{ height: 1, opacity: 0.5, backgroundColor: '#DCEBF7', marginTop: 15 }} />
+                        <Text style={{ color: '#9D9D9D', fontSize: 11, marginVertical: 10, width: Dimensions.get('screen').width / 2 }}>
+                            Lorem ipsum dolor sit amet, elitr consetetur sadipscing elitr, sed ut diam nonumy eirmod tempor et invidunt ut labore et dolore magna aliquyam erat, sed.
+                        </Text>
+                        {/* <Image resizeMode='cover' style={{ width: 206, height: 125, elevation: 10 }} source={require('../../../assets/r1.png')} /> */}
+                    </View>
+                </ScrollView>
+
+
+
                 <Text style={{ textAlign: 'center', width: Dimensions.get('screen').width, marginVertical: 10, fontSize: 20, color: '#000000' }}>Our Videos</Text>
                 {videoSliders.length > 0 && <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {videoSliders.length > 0 && videoSliders.map(item => {
@@ -297,8 +353,9 @@ export default function HomePage({ navigation }) {
                             style={{ elevation: 10, backgroundColor: '#ffffff', marginLeft: 10, marginVertical: 10, borderRadius: 15 }}>
                             <Image
                                 resizeMode='cover'
-                                style={{ width: 200, height: 130, elevation: 10 }}
+                                style={{ width: 200, height: 100, elevation: 10 }}
                                 source={item?.image && item?.image?.url ? { uri: item?.image?.url } : require('../../../assets/vid1.png')} />
+                                <Text style={{fontSize:14,width:200, textAlign:'justify',margin:5}}>{item?.description}</Text>
                         </TouchableOpacity>
                     })
                     }

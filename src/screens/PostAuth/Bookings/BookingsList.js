@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, ScrollView, Image, ToastAndroid } from 'react-native';
 import { Button } from 'react-native-paper';
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -79,6 +79,9 @@ export default function Bookings({ navigation }) {
               }).catch(err => {
                 setLoading(false)
                 setRefresh(false);
+                if(err.response.status === 500){
+                  ToastAndroid.show("Some Error Occured!\nServer Down.",ToastAndroid.LONG)
+                }
                 console.log("err++++++++++++", err)
 
               })

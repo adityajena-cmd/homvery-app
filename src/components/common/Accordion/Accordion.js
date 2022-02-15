@@ -28,10 +28,10 @@ export const Accord = ({ data = {} }) => {
 
                     </View>
                     <View style={{ flexDirection: 'row', marginBottom: 20 }}>
-                        <View style={{ paddingRight: 20 }}>
+                        <View style={{ paddingRight: 20, left: 10 }}>
                             <Image style={{ marginTop: 5 }} source={require('../../../assets/sc1.png')} resizeMode='cover' />
                         </View>
-                        <View >
+                        <View style={{ left: 10 }}>
                             <Text style={{ color: '#000000', fontSize: 18, fontWeight: '600' }}>Service Type</Text>
                             <Text style={{ color: '#000000', fontSize: 15, fontWeight: '400', width: width / 1.5 }}>{data?.bookingid?.serviceid?.name}</Text>
                         </View>

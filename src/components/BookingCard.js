@@ -35,7 +35,12 @@ export const BookingCard = ({ type, data, onPress = () => { } }) => {
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#00B0EB', fontSize: 15, marginBottom: 10 }}>Technician</Text>
               <View style={{ flexDirection: 'row' }}>
-                { getInitials(data.bookingid?.assignedto?.firstname, data.bookingid?.assignedto?.lastname, 40)}
+                {data.bookingid?.assignedto?.profilepic?
+                <Image source={data.bookingid?.assignedto?.profilepic && 
+                  data.bookingid?.assignedto?.profilepic?.url ?
+                  {uri:data.bookingid?.assignedto?.profilepic?.url}
+                  :require('../assets/user.png')} resizeMode='contain' style={{ borderRadius:25,height: 50, width: 50 }} />:
+                  getInitials(data.bookingid?.assignedto?.firstname, data.bookingid?.assignedto?.lastname, 40)}
                 <View style={{ marginLeft: 10 }}>
                   <Text style={{ color: '#000000', fontSize: 14, marginBottom: 5, fontWeight: '600' }}>{data.bookingid?.assignedto?.id ? data.bookingid?.assignedto?.firstname + " " + data.bookingid?.assignedto?.lastname : 'Not Assigned'}</Text>
                   <View style={{ display: 'flex', flexDirection: 'row' }}>

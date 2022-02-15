@@ -61,10 +61,10 @@ function Screen1({ data }) {
 
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
               <Image style={{ width: Dimensions.get('screen').width / 5, height: Dimensions.get('screen').width / 4, borderRadius: 10 }}
-                resizeMode='contain' source={item.displayPic?.url ? { uri: urlconfig.baseURL + item.displayPic?.url } : require('../../../assets/techGuy.png')} />
+                resizeMode='contain' source={ item.displayPic?.url ? item.displayPic?.url.substring(0,4) === 'http'? { uri: item.displayPic?.url }:{ uri: urlconfig.baseURL + item.displayPic?.url } : require('../../../assets/techGuy.png')} />
               <View style={{ paddingLeft: 15, width: Dimensions.get('screen').width / 2 }}>
                 <Text style={{ fontWeight: '600', fontSize: 13, color: '#000000' }}>{item.Title}</Text>
-                <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070' }}>{item.description}</Text>
+                <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070',textAlign:'justify' }}>{item.description}</Text>
               </View>
             </View>
 

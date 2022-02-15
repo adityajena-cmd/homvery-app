@@ -154,11 +154,11 @@ export default function PersonalDetails({ navigation, route }) {
             ToastAndroid.show('Enter a Valid Email!', ToastAndroid.SHORT);
             return;
         }
-        if (phoneNumber?.length == 0 || phoneNumber == null || phoneNumber == undefined || phoneNumber === 'NA') {
-            ToastAndroid.show('Enter a Valid Phone Number!', ToastAndroid.SHORT);
-            return;
-        }
-        if (alternatephonenumber?.length == 0 || alternatephonenumber == null || alternatephonenumber == undefined || alternatephonenumber === 'NA') {
+        // if (phoneNumber?.length == 0 || phoneNumber == null || phoneNumber == undefined || phoneNumber === 'NA') {
+        //     ToastAndroid.show('Enter a Valid Phone Number!', ToastAndroid.SHORT);
+        //     return;
+        // }
+        if (alternatephonenumber?.length == 0 || alternatephonenumber == null || alternatephonenumber == undefined || alternatephonenumber === 'NA' || !/^[789]\d{9}$/.test(alternatephonenumber)) {
             ToastAndroid.show('Enter a Valid Phone Number!', ToastAndroid.SHORT);
             return;
         }
@@ -202,7 +202,7 @@ export default function PersonalDetails({ navigation, route }) {
                         </View>
                     </View>
                     <FormTextInput label="Mail ID" placeholder="Type Mail ID" onChangeText={(text) => { setEmail(text) }} value={email} />
-                    <FormTextInput label="Phone No" placeholder="9478669875" editable={false} onChangeText={(text) => { setphoneNumber(text) }} value={phoneNumber} maxLength={10} keyboardType={'phone-pad'} />
+                    {/* <FormTextInput label="Phone No" placeholder="9478669875" editable={false} onChangeText={(text) => { setphoneNumber(text) }} value={phoneNumber} maxLength={10} keyboardType={'phone-pad'} /> */}
                     <FormTextInput label="Secondary No" placeholder="Type Mobile Number" onChangeText={(text) => { setalternatephonenumber(text) }} value={alternatephonenumber} maxLength={10} keyboardType={'phone-pad'} />
                 </View>
 

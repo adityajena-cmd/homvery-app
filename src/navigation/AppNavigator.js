@@ -35,6 +35,7 @@ const Stack = createStackNavigator();
 const BottomTab = createMaterialBottomTabNavigator();
 
 function Bottomtabs() {
+  
   return (
     <BottomTab.Navigator
       initialRouteName='Home'
@@ -60,7 +61,7 @@ function Bottomtabs() {
         }}
         name="Bookings"
         component={BookingsList} />
-      <BottomTab.Screen
+      {/* <BottomTab.Screen
         options={{
           tabBarLabel: 'Rewards',
           tabBarIcon: ({ color }) => (
@@ -68,7 +69,7 @@ function Bottomtabs() {
           ),
         }}
         name="Rewards"
-        component={Reward} />
+        component={Reward} /> */}
       <BottomTab.Screen
         options={{
           tabBarLabel: 'My Profile',

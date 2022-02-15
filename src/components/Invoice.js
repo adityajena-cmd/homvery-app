@@ -22,7 +22,7 @@ export const Invoice = ({ quotationList, paid, offer = 0 }) => {
         }
     }
 
-    const getDsicount = () =>{
+    const getDsicount = () => {
         let bill = 0
         quotationList && quotationList.length > 0 &&
             quotationList.forEach(it => {
@@ -34,7 +34,6 @@ export const Invoice = ({ quotationList, paid, offer = 0 }) => {
     useEffect(() => {
         // console.log("RESPONSE QUOTATIN-+++++--------------", quotationList?.length)
 
-        ToastAndroid.show("hy" + Math.random().toString(), ToastAndroid.SHORT)
         setDiscount(offer)
         setBilling(quotationList)
     }, [quotationList, offer])

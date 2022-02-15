@@ -5,6 +5,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetAllOffers, GetOffers } from '../../../config/Apis/BookingApi';
 import moment from 'moment';
+import Loader from '../../../components/Loader';
 
 export const CouponApplyCard = ({ data, onPress, isApply }) => {
   const [tc, setTc] = React.useState(false)
@@ -53,10 +54,13 @@ export default function CouponCode({ navigation, route }) {
 
   const [userId, setUserId] = React.useState('');
   const [token, setToken] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
   const [searchText, setSearchText] = React.useState('');
   const [offers, setOffers] = React.useState([]);
   const [tempOffers, settempOffers] = React.useState([]);
   useEffect(() => {
+    setLoading(true)
+
     AsyncStorage.multiGet(
       ['API_TOKEN', 'USER_ID'],
       (err, items) => {
@@ -68,6 +72,8 @@ export default function CouponCode({ navigation, route }) {
           if (route?.params?.bookingId) {
             GetOffers(route?.params?.bookingId, items[0][1])
               .then(res => {
+                setLoading(false)
+
                 console.log(res.data)
                 if (res.status === 200) {
                   setOffers(res.data)
@@ -75,15 +81,21 @@ export default function CouponCode({ navigation, route }) {
 
                 }
               }).catch(err => {
+                setLoading(false)
+
                 console.log(err)
 
               })
           } else {
             GetAllOffers(items[0][1])
               .then(res => {
+                setLoading(false)
+
                 setOffers(res.data)
                 settempOffers(res.data)
               }).catch(err => {
+                setLoading(false)
+
                 console.log(err)
               })
           }
@@ -109,6 +121,7 @@ export default function CouponCode({ navigation, route }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
+      <Loader loading={loading} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
           <View style={{ backgroundColor: '#ffffff', borderRadius: 10, borderColor: '#00B0EB', borderWidth: 1, flexDirection: 'row', marginBottom: 10 }}>
