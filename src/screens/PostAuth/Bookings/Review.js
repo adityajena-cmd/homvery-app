@@ -6,7 +6,7 @@ import Modal from "react-native-modal";
 import { RatingComp } from '../../../components/RatingComp';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GiveReview } from '../../../config/Apis/BookingApi';
+import { CreateReview, GiveReview } from '../../../config/Apis/BookingApi';
 const data2 = [
     {
         name: 'Professional experts'
@@ -26,7 +26,7 @@ const data2 = [
 ]
 
 const data3 = [
-    "Wearing T-shirt", "Wearing Mask", "Having all tools", "Cleaned the workplace"
+    "Wearing T-shirt", "Wearing Mask", "Greated Customer", "Cleaned the workplace"
 ]
 
 function BtnGrp(props) {
@@ -44,9 +44,13 @@ export default function Review({ navigation, route }) {
     const [problem, setProblem] = React.useState(0);
     const [modal, setModal] = React.useState(false);
     const [loading, setloading] = React.useState(false);
+    const [tshirt, setTshirt] = React.useState(false);
+    const [greetedCustomer, setgreetedCustomer] = React.useState(false);
+    const [cleanedWorkSpace, setcleanedWorkSpace] = React.useState(false);
     const [rating, setRating] = React.useState(0);
     const [comments, setComments] = React.useState('');
-    let service = route?.params?.data
+    let service = route?.params?.data 
+    let booking = route?.params?.booking 
 
     const updateProblem = (index) => {
         setProblem(index)
@@ -64,26 +68,39 @@ export default function Review({ navigation, route }) {
                 } else {
                     const body = {
                         active: true,
-                        cleaned_workplace: true,
+                        cleaned_workplace: cleanedWorkSpace,
+                        tshirt: tshirt,
+                        greeted_customer: greetedCustomer,
                         comments: comments,
                         createdBy: items[1][1],
                         description: '',
                         images: [],
                         rating: rating
                     }
+                    console.log(body)
+                    CreateReview(body, items[0][1])
+                        .then(res => {
+                            if (res.status === 200) {
+                                console.log(res.data.id)
 
-                    GiveReview(body,items[0][1],service?.id)
-                    .then(res=>{
-                        setloading(false)
-                        if(res.status === 200){
-                            setModal(true)
-                        }
+                                GiveReview({review:res.data.id}, items[0][1], service?.id)
+                                    .then(result => {
+                                        setloading(false)
+                                        if (result.status === 200) {
+                                            setModal(true)
+                                        }
 
-                    }).catch(err=>{
-                        setloading(false)
+                                    }).catch(error => {
+                                        setloading(false)
 
-                        console.log(err)
-                    })
+                                        console.log("assing err",error)
+                                    })
+                            }
+
+                        }).catch(err => {
+                            console.log("create err", err)
+                        })
+
 
                 }
             })
@@ -128,23 +145,50 @@ export default function Review({ navigation, route }) {
                         />
                         <Text style={{ width: '100%', textAlign: 'center', color: '#000000', fontSize: 18, marginTop: 30, marginBottom: 20 }}>Let us know about technicain</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
-                            {
-                                data3.map((item) => {
-                                    return (
-                                        <BouncyCheckbox
-                                            key={item}
-                                            size={25}
-                                            fillColor="#00B0EB"
-                                            unfillColor="#FFFFFF"
-                                            text={item}
-                                            iconStyle={{ borderColor: "#00B0EB", borderRadius: 5 }}
-                                            textStyle={{ textDecorationLine: "none", fontSize: 12 }}
-                                            style={{ marginBottom: 10, width: '50%' }}
-                                            onPress={() => { }}
-                                        />
-                                    )
-                                })
-                            }
+
+                            <BouncyCheckbox
+                                size={25}
+                                fillColor="#00B0EB"
+                                unfillColor="#FFFFFF"
+                                text={data3[0]}
+                                iconStyle={{ borderColor: "#00B0EB", borderRadius: 5 }}
+                                textStyle={{ textDecorationLine: "none", fontSize: 12 }}
+                                style={{ marginBottom: 10, width: '50%' }}
+                                onPress={(check) => { setTshirt(check) }}
+                            />
+                            <BouncyCheckbox
+
+                                size={25}
+                                fillColor="#00B0EB"
+                                unfillColor="#FFFFFF"
+                                text={data3[1]}
+                                iconStyle={{ borderColor: "#00B0EB", borderRadius: 5 }}
+                                textStyle={{ textDecorationLine: "none", fontSize: 12 }}
+                                style={{ marginBottom: 10, width: '50%' }}
+                                onPress={(check) => { }}
+                            />
+                            <BouncyCheckbox
+
+                                size={25}
+                                fillColor="#00B0EB"
+                                unfillColor="#FFFFFF"
+                                text={data3[2]}
+                                iconStyle={{ borderColor: "#00B0EB", borderRadius: 5 }}
+                                textStyle={{ textDecorationLine: "none", fontSize: 12 }}
+                                style={{ marginBottom: 10, width: '50%' }}
+                                onPress={(check) => { setgreetedCustomer(check) }}
+                            />
+                            <BouncyCheckbox
+
+                                size={25}
+                                fillColor="#00B0EB"
+                                unfillColor="#FFFFFF"
+                                text={data3[3]}
+                                iconStyle={{ borderColor: "#00B0EB", borderRadius: 5 }}
+                                textStyle={{ textDecorationLine: "none", fontSize: 12 }}
+                                style={{ marginBottom: 10, width: '50%' }}
+                                onPress={(check) => { setcleanedWorkSpace(check) }}
+                            />
                         </View>
 
 
@@ -154,11 +198,11 @@ export default function Review({ navigation, route }) {
             </ScrollView>
             <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', elevation: 100, zIndex: 20, backgroundColor: '#F8F8F8' }}>
                 <Button
-                    onPress={() => { submitReview()}}
+                    onPress={() => { submitReview() }}
                     loading={loading}
                     disabled={loading}
                     color='#05194E'
-                    style={{ width: '80%', marginVertical: 20, fontSize: 20,  borderRadius: 10, paddingVertical: 0 }}
+                    style={{ width: '80%', marginVertical: 20, fontSize: 20, borderRadius: 10, paddingVertical: 0 }}
                     mode="contained">
                     <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Submit your review</Text>
                 </Button>

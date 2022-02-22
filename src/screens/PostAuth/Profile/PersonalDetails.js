@@ -1,14 +1,15 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-import { View, Text, ScrollView, Dimensions, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Dimensions, Image, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import { Button } from 'react-native-paper';
-import { UpdateUserDeatils, UploadProfile } from '../../../config/Apis/ProfileApi';
+import { UpdateUser, UpdateUserDeatils, UploadProfile } from '../../../config/Apis/ProfileApi';
 import { getDate } from '../../../config/Apis/Utils';
 import { launchCamera } from 'react-native-image-picker';
 import { requestCameraPermisiion } from '../../../config/LocaitonProvider';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Alert } from 'react-native';
+import axios from 'axios';
 export const FormTextInput = (props) => {
     const { label, placeholder, ...def } = props;
     return (
@@ -27,6 +28,13 @@ export const FormTextInput = (props) => {
 }
 
 export default function PersonalDetails({ navigation, route }) {
+
+    
+    useEffect(() => {
+        requestCameraPermisiion()
+
+    }, []);
+
     const width = Dimensions.get('screen').width
     let token = route?.params?.token
     let user = route?.params?.data
@@ -43,11 +51,8 @@ export default function PersonalDetails({ navigation, route }) {
     const [year, setyear] = React.useState(user?.dob ? getDate(user?.dob)[0] : '')
     const [profilesource, setProfileSource] = useState('')
 
-
-
     const UploadImage = (doc) => {
-        console.log("token",token)
-        console.log("userID",userId)
+        console.log(doc)
         let formData = new FormData()
         formData.append('files', doc)
         UploadProfile(token, formData)
@@ -56,7 +61,7 @@ export default function PersonalDetails({ navigation, route }) {
                     console.log("response", res.data[0].id)
                     let userForm = new FormData()
                     userForm.append('profilepic', res.data[0].id)
-                    UpdateUser(userId, token, userForm)
+                    UpdateUser(userId, token, userForm,true)
                         .then(res => {
                             console.log(res.status)
                             ToastAndroid.show('Image Uploaded!', ToastAndroid.SHORT);
@@ -70,7 +75,6 @@ export default function PersonalDetails({ navigation, route }) {
 
             })
     }
-
     const askForUpload = (doc) => {
         return Alert.alert(
             "Upload Image?",
@@ -96,7 +100,6 @@ export default function PersonalDetails({ navigation, route }) {
     const options = {
         mediaType: 'photo',
         cameraType: 'front',
-        quality: 0.99,
         storageOptions: {
             skipBackup: true,
             path: 'images',
@@ -164,8 +167,23 @@ export default function PersonalDetails({ navigation, route }) {
         }
 
         const body = {
+            "email": email,
+            "dob": year + "-" + month + "-" + day,
+            "firstname": firstname,
+            "lastname": lastname,
+            "alternatephonenumber": alternatephonenumber,
 
         }
+        console.log(body, userId, token)
+        UpdateUser(userId, token, body, false).then(res => {
+            if (res.status === 200) {
+                navigation.goBack()
+                ToastAndroid.show("Profile Updated Succesfully!", ToastAndroid.SHORT);
+
+            }
+        }).catch(err => {
+            console.log(err)
+        })
     }
 
     return (

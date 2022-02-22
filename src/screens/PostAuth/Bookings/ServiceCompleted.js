@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetBillingDetails, GetTechinicianServices } from '../../../config/Apis/BookingApi';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { TrickImg } from '../../../components/CoinBanner';
+import { TrickModal } from '../Reward/Reward';
 
 export const Invoice = ({ quotationList=[] }) => {
     const width = Dimensions.get('screen').width;
@@ -70,6 +71,7 @@ export default function ServiceCompleted({ navigation, route }) {
     let booking = route?.params?.data;
     const [quotationList, setQuotationList] = React.useState([])
     const [coins, setCoins] = React.useState(0)
+    const [modal, setModal] = React.useState(false)
 
     const [assingedTo, setAssingedTo] = React.useState({})
 
@@ -119,13 +121,14 @@ export default function ServiceCompleted({ navigation, route }) {
 
     return (
         <View style={{ backgroundColor: '#F8F8F8', flex: 1 }}>
+             <TrickModal modal={modal} setModal={setModal} />
             <ScrollView>
                 <View style={{ padding: 20 }}>
                     <Accord data={booking} />
                     {assingedTo?.technician && <BookingStatusCard techDetails={assingedTo} status={booking?.bookingstatusid?.name} serviceType={booking?.bookingid?.serviceid?.name} assingedTo={booking?.bookingid?.assignedto} />}
-                    {quotationList.length>0 &&<TrickImg coins={coins} />}
+                    {quotationList.length>0 &&<TrickImg coins={coins} onClick={()=>setModal(true)} />}
                     {quotationList.length>0 && <Invoice paid={true} quotationList={quotationList} />}
-                    <RatingComp  rating={booking?.bookingid?.review ? booking?.bookingid?.review : 0} />
+                    <RatingComp  rating={booking?.bookingid?.review?.rating ? booking?.bookingid?.review?.rating : 0} />
                 </View>
             </ScrollView>
         </View>

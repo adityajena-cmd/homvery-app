@@ -30,12 +30,13 @@ import ContactUs from '../screens/PostAuth/Profile/ContactUs';
 import AboutUs from '../screens/PostAuth/Profile/AboutUs';
 import PersonalDetails from '../screens/PostAuth/Profile/PersonalDetails';
 import Dispute from '../screens/PostAuth/Bookings/Dispute';
+import AllBookings from '../screens/PostAuth/Bookings/BookingsListViewAll';
 
 const Stack = createStackNavigator();
 const BottomTab = createMaterialBottomTabNavigator();
 
 function Bottomtabs() {
-  
+
   return (
     <BottomTab.Navigator
       initialRouteName='Home'
@@ -61,6 +62,7 @@ function Bottomtabs() {
         }}
         name="Bookings"
         component={BookingsList} />
+
       {/* <BottomTab.Screen
         options={{
           tabBarLabel: 'Rewards',
@@ -177,6 +179,18 @@ const AuthNavigator = () => {
           </TouchableOpacity>),
           headerTitleAlign: 'center',
           headerTitle: 'Upcoming Booking'
+        }}
+      />
+      <Stack.Screen
+        name="BookingsAll"
+        component={AllBookings}
+        options={{
+          headerShown: true,
+          headerLeft: () => (<TouchableOpacity onPress={() => { navigation.goBack() }}>
+            <MaterialCommunityIcons name="arrow-left" color={'#000000'} style={{ marginHorizontal: 10 }} size={30} />
+          </TouchableOpacity>),
+          headerTitleAlign: 'center',
+          headerTitle: 'All Booking'
         }}
       />
       <Stack.Screen

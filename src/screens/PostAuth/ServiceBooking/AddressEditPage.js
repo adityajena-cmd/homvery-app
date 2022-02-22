@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { UpdateUserAddress } from '../../../config/Apis/ProfileApi';
 import AsyncStorageLib from '@react-native-async-storage/async-storage';
 import Loader from '../../../components/Loader';
+import { GetCities } from '../../../config/Apis/PublicApi';
 DropDownPicker.setListMode("SCROLLVIEW");
 
 
@@ -53,6 +54,7 @@ const FormDropDown = (props) => {
                 label && <Text style={{ fontSize: 15, fontWeight: '500', color: '#3e414a', marginBottom: 8 }}>{label}</Text>
             }
             <DropDownPicker
+                dropDownDirection="TOP"
                 style={{ borderColor: '#00B0EB', borderWidth: 1 }}
                 showTickIcon={false}
                 dropDownContainerStyle={{
@@ -99,12 +101,27 @@ export default function AddressEditPage({ navigation, route }) {
     const [phoneNumber, setphoneNumber] = useState(initialVal ? initialVal.phoneNumber : '');
     const [userId, setUserId] = React.useState('');
     const [token, setToken] = React.useState('');
-    const [currentAddress, setCurrentAddress] = useState(route?.params.address)
+    const [locList, setLocList] = React.useState([]);
+    const [allCities, setAllCities] = React.useState([]);
+    const [currentAddress, setCurrentAddress] = useState(route?.params?.address)
 
     const [loading, setLoading] = React.useState(false);
 
     // let address = route?.params.address
-    let coords = route?.params.coords
+    let coords = route?.params?.coords
+    const [zips, setZips] = React.useState([
+        { label: '758965', value: '758965' },
+        { label: '758963', value: '758963' },
+        { label: '758966', value: '758966' },
+    ]);
+    const [items, setItems] = React.useState([
+        { label: 'Sambalpur', value: 'Sambalpur' },
+        { label: 'Bhubaneshwar', value: 'Bhubaneshwar' },
+        { label: 'Jharsuguda', value: 'Jharsuguda' },
+        { label: 'Cuttack', value: 'Cuttack' },
+        { label: 'Burla', value: 'Burla' },
+        { label: 'Rourkela', value: 'Rourkela' },
+    ]);
 
     useEffect(() => {
         AsyncStorageLib.multiGet(
@@ -119,6 +136,44 @@ export default function AddressEditPage({ navigation, route }) {
             })
 
     }, [])
+
+    const getCitiesLoc = (data) => {
+        let cit = []
+        data && data.length > 0 && data.forEach(item => {
+            cit.push({ label: item.name, value: item.name })
+        })
+
+        setItems(cit)
+
+    }
+    useEffect(() => {
+        if (city !== null || city !== '' || data !== null) {
+            let cit = allCities.filter(i => i.name === city)
+            let zp = []
+            cit[0]?.pincode.forEach(item => {
+                zp.push({ label: item.number, value: item.number })
+            })
+            console.log(cit[0])
+            setZips(zp)
+        }
+    }, [city])
+
+
+    useEffect(() => {
+        GetCities('')
+            .then(res => {
+                if (res.status === 200) {
+                    getCitiesLoc(res.data)
+                    setAllCities(res.data)
+                    setLocList(res.data)
+                }
+
+            }).catch(err => {
+                console.log(err);
+            })
+    }, [])
+
+
 
 
 
@@ -207,9 +262,9 @@ export default function AddressEditPage({ navigation, route }) {
                 "longitude": coords[0]
             }
             setLoading(true)
-            let address = currentAddress.filter(item => item.id !== initialVal.id )
+            let address = currentAddress.filter(item => item.id !== initialVal.id)
             console.log("ADDD=========", address)
-            UpdateUserAddress(userId, token, { address: [...address,body] })
+            UpdateUserAddress(userId, token, { address: [...address, body] })
                 .then(res => {
                     setLoading(false)
                     if (res.status === 200) {
@@ -234,23 +289,27 @@ export default function AddressEditPage({ navigation, route }) {
     const width = Dimensions.get('screen').width;
     const data2 = [
         {
-            name: 'Home',
+            name: 'home',
             iconName: 'home-variant-outline'
 
         },
         {
-            name: 'Work',
+            name: 'work',
             iconName: 'home-city-outline'
 
         },
         {
-            name: 'Others',
+            name: 'other',
             iconName: 'map-marker-outline'
 
         },
 
     ]
-    const [problem, setProblem] = React.useState(0);
+
+    const getTypeIni = (t) => {
+        return data2.findIndex(i => i.name === t)
+    }
+    const [problem, setProblem] = React.useState(initialVal?.type ? getTypeIni(initialVal?.type) : 0);
 
 
     const setAddressType = (index) => {
@@ -268,19 +327,8 @@ export default function AddressEditPage({ navigation, route }) {
         setpincode(item.label)
     }
 
-    const [items, setItems] = React.useState([
-        { label: 'Sambalpur', value: 'Sambalpur' },
-        { label: 'Bhubaneshwar', value: 'Bhubaneshwar' },
-        { label: 'Jharsuguda', value: 'Jharsuguda' },
-        { label: 'Cuttack', value: 'Cuttack' },
-        { label: 'Burla', value: 'Burla' },
-        { label: 'Rourkela', value: 'Rourkela' },
-    ]);
-    const [zips, setZips] = React.useState([
-        { label: '758965', value: '758965' },
-        { label: '758963', value: '758963' },
-        { label: '758966', value: '758966' },
-    ]);
+
+
 
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
@@ -336,16 +384,17 @@ export default function AddressEditPage({ navigation, route }) {
                         </View>
                     </View>
                 </View>
+                <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8' }}>
+                    <Button onPress={() => {
+                        updateAddress()
+                    }}
+                        style={{ width: '60%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
+                        mode="contained"
+                    ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Save Address</Text></Button>
+                </View>
 
             </ScrollView>
-            <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8' }}>
-                <Button onPress={() => {
-                    updateAddress()
-                }}
-                    style={{ width: '60%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
-                    mode="contained"
-                ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Save Address</Text></Button>
-            </View>
+
         </View>
     );
 }

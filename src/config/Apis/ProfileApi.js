@@ -48,10 +48,10 @@ const UploadProfile = (token, formData) => {
     return axios.post(urlConfig.baseURL + '/upload', formData, header);
 };
 
-const UpdateUser = (userId, token, formData) => {
-    const header = getUserToken(token, true);
+const UpdateUser = (userId, token, body,isFormData=true) => {
+    const header = getUserToken(token, isFormData);
 
-    return axios.put(urlConfig.baseURL + '/users/' + userId, formData, header);
+    return axios.put(urlConfig.baseURL + '/users/' + userId, body, header);
 };
 
 const UpdateUserAddress = (userId, token, body) => {

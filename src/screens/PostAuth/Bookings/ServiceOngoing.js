@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ToastAndroid, TextInput, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, ToastAndroid, TextInput, Dimensions, RefreshControl } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Button } from 'react-native-paper';
 import { Accord } from '../../../components/common/Accordion/Accordion';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { validatePathConfig } from '@react-navigation/native';
-import { AcceptQuotation, GetBillingDetails, RejectQuotation, UpdatePayment } from '../../../config/Apis/BookingApi';
+import { AcceptQuotation, GetBillingDetails, GetBookingStatus, RejectQuotation, UpdatePayment } from '../../../config/Apis/BookingApi';
 import { Invoice } from '../../../components/Invoice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
@@ -14,6 +14,7 @@ import { getPaytmToken } from '../../../config/Apis/PaymentApis';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
 import { TrickImg } from '../../../components/CoinBanner';
 import Loader from '../../../components/Loader';
+import { TrickModal } from '../Reward/Reward';
 
 const data3 = [
     "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
@@ -55,6 +56,9 @@ export default function ServiceOngoing({ navigation, route }) {
     const [coins, setCoins] = React.useState(0)
     const [rejectModal, setRejectModal] = React.useState(false)
     const [loading, setLoading] = React.useState(false)
+    const [modal, setModal] = React.useState(false)
+    const [completed, setCompleted] = React.useState(false)
+    const [load, setLoad] = React.useState(0)
 
 
 
@@ -72,7 +76,9 @@ export default function ServiceOngoing({ navigation, route }) {
                 setLoading(false)
                 console.log(res.data)
                 if (res.status === 200) {
-                    setPaid(true)
+                    setLoad(load + 1)
+
+                    // setPaid(true)
                 }
             }).catch(err => {
                 setLoading(false)
@@ -154,6 +160,42 @@ export default function ServiceOngoing({ navigation, route }) {
             });
     }
 
+    const setButtons = (data) => {
+        let status = data.bookingstatusid?.name;
+        console.log(status)
+        switch (status) {
+            case 'QUOTATION_CREATED':
+                setAccepted(false)
+                setPaid(false)
+                break;
+
+            case 'QUOTATION_APPROVED':
+                setAccepted(true)
+                setPaid(false)
+                break;
+
+            case 'QUOTATION_REJECTED':
+                navigation.goBack()
+                break;
+
+            case 'PAYMENT_COMPLETED':
+                setAccepted(true)
+                setPaid(true)
+                break;
+            case 'BOOKING_COMPLETED':
+                setCompleted(true)
+                setAccepted(true)
+                setPaid(true)
+                break;
+
+            default:
+                setAccepted(false)
+                setPaid(false)
+                break;
+        }
+
+    }
+
 
 
 
@@ -167,6 +209,17 @@ export default function ServiceOngoing({ navigation, route }) {
                 } else {
                     setToken(items[0][1])
                     setUserId(items[1][1])
+                    GetBookingStatus(booking?.bookingid?.id, items[0][1])
+                        .then(result => {
+                            // setRefresh(false)
+                            if (result.status === 200 && result.data.length > 0) {
+                                setButtons(result.data[0])
+                            }
+                        }).catch(err => {
+                            // setRefresh(false)
+
+                            console.log(err)
+                        })
                     console.log("NEUOhfwre=99999999999999==========================", items[0][1])
                     GetBillingDetails(items[0][1], booking?.bookingid?.id)
                         .then(res => {
@@ -183,7 +236,7 @@ export default function ServiceOngoing({ navigation, route }) {
                         })
                 }
             })
-    }, [])
+    }, [load])
 
     const acceptBooking = () => {
         setLoading(true)
@@ -198,11 +251,12 @@ export default function ServiceOngoing({ navigation, route }) {
                 "bookingId": booking?.bookingid?.id,
             }
         }
-
+        console.log(body)
         AcceptQuotation(body, token).then(res => {
             setLoading(false)
             if (res.status === 200) {
-                setAccepted(true)
+                setLoad(load + 1)
+                // setAccepted(true)
             }
         }).catch(err => {
             setLoading(false)
@@ -222,7 +276,8 @@ export default function ServiceOngoing({ navigation, route }) {
             setLoading(false)
 
             if (res.status === 200) {
-                setRejectModal(false)
+                setLoad(load + 1)
+                // setRejectModal(false)
             }
         })).catch(err => {
             setLoading(false)
@@ -231,11 +286,21 @@ export default function ServiceOngoing({ navigation, route }) {
         })
     }
 
+    const onRefresh = () => {
+        setLoad(load + 1)
+    }
+
     return (
         <View style={{ flex: 1, backgroundColor: '#f8f8f8', }}>
             <Loader loading={loading} />
+            <TrickModal modal={modal} setModal={setModal} />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={loading}
+                        onRefresh={onRefresh} />
+                }>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
                     {route.params?.assingedTo?.technician && <BookingStatusCard
@@ -244,7 +309,7 @@ export default function ServiceOngoing({ navigation, route }) {
                         serviceType={booking?.bookingid?.serviceid?.name}
                         assingedTo={booking?.bookingid?.assignedto}
                     />}
-                    {coins > 0 && <TrickImg coins={coins} />}
+                    {coins > 0 && <TrickImg coins={coins} onClick={() => setModal(true)} />}
                     <Coupon
                         isAccepted={isAccepted}
                         copoun={coupon}
@@ -258,7 +323,7 @@ export default function ServiceOngoing({ navigation, route }) {
 
             </ScrollView>
             {
-                isAccepted && paid ?
+                completed ?
                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
                         <Button
                             onPress={() => { navigation.navigate('Review', { data: booking?.bookingid }) }}

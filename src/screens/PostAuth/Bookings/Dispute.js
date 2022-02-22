@@ -6,7 +6,7 @@ import Modal from "react-native-modal";
 import { RatingComp } from '../../../components/RatingComp';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GiveDispute, GiveReview } from '../../../config/Apis/BookingApi';
+import { CreateDispute, GiveDispute, GiveReview } from '../../../config/Apis/BookingApi';
 const data2 = [
     {
         name: 'Misbehaved'
@@ -42,9 +42,7 @@ function BtnGrp(props) {
 };
 export default function Dispute({ navigation, route }) {
     const [problem, setProblem] = React.useState(0);
-    const [modal, setModal] = React.useState(false);
     const [loading, setloading] = React.useState(false);
-    const [rating, setRating] = React.useState(0);
     const [comments, setComments] = React.useState('');
     const [description, setDescription] = React.useState('');
     let service = route?.params?.data
@@ -52,6 +50,7 @@ export default function Dispute({ navigation, route }) {
     const updateProblem = (index) => {
         setProblem(index)
         setComments(data2[index].name)
+        console.log(data2[index].name)
     }
 
 
@@ -65,23 +64,35 @@ export default function Dispute({ navigation, route }) {
                 } else {
                     const body = {
                         active: true,
-                        problem: comments,
+                        Problem: data2[problem].name,
                         createdBy: items[1][1],
                         description: description,
+                        status:"PENDING"
                     }
-
-                    GiveDispute(body, items[0][1], service?.id)
+                    CreateDispute(body, items[0][1])
                         .then(res => {
-                            setloading(false)
-                            if (res.status === 200) {
-                                navigation.navigate('Homepage')
-                            }
 
+                            if (res.status === 200) {
+                                console.log(res.data.id)
+                                GiveDispute({dispute:res.data.id}, items[0][1], service?.id)
+                                    .then(response => {
+                                        setloading(false)
+                                        if (response.status === 200) {
+                                            ToastAndroid.show("Dispute Raised ", ToastAndroid.SHORT)
+
+                                            navigation.navigate('Homepage')
+                                        }
+
+                                    }).catch(error => {
+                                        setloading(false)
+                                        ToastAndroid.show("Some Error Occured! try Again later ", ToastAndroid.SHORT)
+                                        console.log("Give", error)
+                                    })
+                            }
                         }).catch(err => {
-                            setloading(false)
-                            ToastAndroid.show("Some Error Occured! try Again later ",ToastAndroid.SHORT)
                             console.log(err)
                         })
+
 
                 }
             })

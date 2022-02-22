@@ -10,7 +10,7 @@ import { getInitials, openBrowser } from '../../../config/Apis/Utils';
 import AsyncStorageLib from '@react-native-async-storage/async-storage';
 import urlConfig from '../../../config/config.json'
 import Loader from '../../../components/Loader'
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, useFocusEffect } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
 export const ProfileTab = (props) => {
     return (
@@ -82,7 +82,8 @@ export default function Profile({ navigation }) {
         }
     }
 
-    useEffect(() => {
+    useFocusEffect(
+        React.useCallback(() => {
         setloading(true)
         AsyncStorageLib.multiGet(
             ['API_TOKEN', 'USER_ID', 'IS_LOGGEDIN'],
@@ -124,7 +125,7 @@ export default function Profile({ navigation }) {
                 }
             })
 
-    }, [])
+    } , []))
 
     const ProfileData = [
         {
@@ -207,7 +208,7 @@ export default function Profile({ navigation }) {
                     <Text style={{ fontSize: 14, color: '#707070', marginBottom: 5 }}>{user?.phonenumber}</Text>
                 </View>
                 <View>
-                    <TouchableOpacity onPress={() => { navigation.navigate('PersonalDetails', { data: user, token: token }) }}>
+                    <TouchableOpacity onPress={() => { navigation.navigate('PersonalDetails', { data: user, token: token,userId:userId }) }}>
                         <Text style={{ fontSize: 16, color: '#41C461', marginBottom: 5 }}><MaterialCommunityIcons size={16} name='pencil' /> edit</Text>
                     </TouchableOpacity>
                 </View>

@@ -4,7 +4,7 @@ import { Button } from 'react-native-paper';
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GetBookings } from '../../../config/Apis/BookingApi';
+import { GetAllBookings, GetBookings } from '../../../config/Apis/BookingApi';
 import { CommonActions, useFocusEffect } from '@react-navigation/native';
 import { RefreshControl } from 'react-native';
 import { getFullAddress, getInitials, getStatus } from '../../../config/Apis/Utils';
@@ -13,7 +13,7 @@ import Loader from '../../../components/Loader';
 import { BookingCard } from '../../../components/BookingCard';
 
 
-export default function Bookings({ navigation }) {
+export default function AllBookings({ navigation }) {
 
   const [loading, setLoading] = React.useState(false);
   const [load, setLoad] = React.useState(0);
@@ -60,7 +60,7 @@ export default function Bookings({ navigation }) {
             setUserId(items[1][1])
             setLoading(true)
 
-            GetBookings(items[1][1], items[0][1])
+            GetAllBookings(items[1][1], items[0][1])
               .then(res => {
                 setLoading(false)
                 setRefresh(false);
@@ -79,8 +79,8 @@ export default function Bookings({ navigation }) {
               }).catch(err => {
                 setLoading(false)
                 setRefresh(false);
-                if (err.response.status === 500) {
-                  ToastAndroid.show("Some Error Occured!\nServer Down.", ToastAndroid.LONG)
+                if(err.response.status === 500){
+                  ToastAndroid.show("Some Error Occured!\nServer Down.",ToastAndroid.LONG)
                 }
                 console.log("err++++++++++++", err)
 
@@ -101,24 +101,10 @@ export default function Bookings({ navigation }) {
             refreshing={isRefresh}
             onRefresh={onRefresh} />
         }>
-        <View style={{ elevation: 5, backgroundColor: '#ffffff', zIndex: 9, position: 'absolute', flexDirection: 'row', justifyContent: 'space-between', padding: 15, width: Dimensions.get('screen').width }}>
-          <TouchableOpacity onPress={() => { navigation.goBack() }}>
-            <MaterialCommunityIcons name="arrow-left" color={'#000000'} style={{ marginHorizontal: 10 }} size={25} /></TouchableOpacity>
-          <Text style={{ fontSize: 20, color: '#000000', fontWeight: '600' }}>Bookings</Text>
-          <Fontisto name="arrow-left" color={'#ffffff00'} size={20} />
-        </View>
-        <View style={{ flex: 1, backgroundColor: '#F8F8F8', paddingHorizontal: 20, paddingTop: 20, marginTop: 40 }}>
+        
+        <View style={{ flex: 1, backgroundColor: '#F8F8F8', paddingHorizontal: 20,paddingTop:20 }}>
           <ScrollView showsVerticalScrollIndicator={false}>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#000000', fontSize: 20, fontWeight: '600', marginBottom: 20 }}>Upcoming Bookings</Text>
-              <Button onPress={() => {
-                navigation.navigate('BookingsAll')
-              }}
-                style={{ height: 30, marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0, paddingHorizontal: 0 }}
-                mode="contained"
-              ><Text style={{ color: '#ffffff', fontSize: 9 }}>View All</Text></Button>
-            </View>
+            <Text style={{ color: '#000000', fontSize: 20, fontWeight: '600', marginBottom: 20 }}>Upcoming Bookings</Text>
             {upcomingBookings && upcomingBookings.length > 0 ?
               upcomingBookings.map(item => {
                 return <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceUpcoming', { data: item }) }} />
@@ -126,15 +112,7 @@ export default function Bookings({ navigation }) {
 
 
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#000000', fontSize: 20, fontWeight: '600', marginBottom: 20 }}>Completed Bookings</Text>
-              <Button onPress={() => {
-                navigation.navigate('BookingsAll')
-              }}
-                style={{ height: 30, marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0, paddingHorizontal: 0 }}
-                mode="contained"
-              ><Text style={{ color: '#ffffff', fontSize: 9 }}>View All</Text></Button>
-            </View>
+            <Text style={{ color: '#000000', fontSize: 20, fontWeight: '600', marginVertical: 20 }}>Completed</Text>
             {completedBookings && completedBookings.length > 0 ?
               completedBookings.map(item => {
                 return <BookingCard type={item?.bookingstatusid?.name} data={item} onPress={() => { navigation.navigate('ServiceCompleted', { data: item }) }} />

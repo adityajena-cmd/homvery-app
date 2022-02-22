@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, ScrollView, Dimensions, TouchableOpacity, TextInput, Image } from 'react-native';
+import { View, Text, ScrollView, Dimensions, TouchableOpacity, TextInput, Image, ToastAndroid } from 'react-native';
 import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign'
@@ -32,6 +32,7 @@ export default function ServiceBooking({ navigation, route }) {
     const [preferedTime, setPreferedTime] = React.useState(0);
     const [problem, setProblem] = React.useState(0);
     const [issue, setIssue] = React.useState('');
+    const [savedCity, setSavedCity] = React.useState('');
     const [bottomSheet, setBottomSheet] = React.useState(false);
     const [bottomSheet2, setBottomSheet2] = React.useState(false);
     const [userId, setUserId] = React.useState('');
@@ -51,13 +52,14 @@ export default function ServiceBooking({ navigation, route }) {
         React.useCallback(() => {
             setLoading(true)
             AsyncStorage.multiGet(
-                ['API_TOKEN', 'USER_ID'],
+                ['API_TOKEN', 'USER_ID','CITY'],
                 (err, items) => {
                     if (err) {
                         console.log("ERROR===================", err);
                     } else {
                         setToken(items[0][1])
                         setUserId(items[1][1])
+                        setSavedCity(items[2][1])
                         GetUserDeatils(items[1][1], items[0][1])
                             .then(res => {
                                 setLoading(false)
@@ -176,6 +178,17 @@ export default function ServiceBooking({ navigation, route }) {
         setToDate(td.utc().utcOffset("+05:30"))
     }
 
+    const selectAdd = (item) =>{
+        if(savedCity !== item?.city){
+            ToastAndroid.show("Service not avaialable in this locaiton",ToastAndroid.SHORT)
+
+        }else{
+            setAddressLine(item?.addressline1 + ", " + item?.city);
+             setSelectedAddress(item);
+              setBottomSheet(false) 
+        }
+    }
+
 
     const confirmBooking = () => {
         setLoading(true)
@@ -187,8 +200,8 @@ export default function ServiceBooking({ navigation, route }) {
             "address": selectedAddress,
             "fromtime": fromDate,
             "booking_medium": "APP",
-            "updated_by": userId,
-            "createdby": userId,
+            "updated_by": parseInt(userId),
+            "createdby": parseInt(userId),
             "problem": issue
         }
         console.log(body)
@@ -202,8 +215,11 @@ export default function ServiceBooking({ navigation, route }) {
                 }
             }).catch(err => {
                 setLoading(false)
+                if(err.response.status === 400){
+                    ToastAndroid.show("Some Server error occured ! \nTry Later!",ToastAndroid.SHORT);
 
-                console.log("ERR", err)
+                }
+                console.log("ERR", err.response.data?.message)
             })
 
     }
@@ -214,15 +230,16 @@ export default function ServiceBooking({ navigation, route }) {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ flex: 1 }}>
                         <View style={{ backgroundColor: '#ffffff', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', padding: 20, elevation: 7, zIndex: 10 }}>
-                            <View>
+                            <View style={{maxWidth:"80%"}}>
                                 <Text style={{ color: '#000', fontSize: 23, fontWeight: '600' }}>Address</Text>
-                                <Text style={{ color: '#000000a3', fontSize: 15, }}>
+                                <Text style={{ color: '#000000a3', fontSize: 15 }}>
                                     <MaterialCommunityIcons name="map-marker" color={'#000000'} style={{ marginHorizontal: 10 }} size={15} />{addressLine}</Text>
                             </View>
                             <Button onPress={() => {
                                 setBottomSheet(true)
+                                //
                             }}
-                                style={{ marginVertical: 10, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
+                                style={{ marginVertical: 10, fontSize: 16, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 ,marginLeft:20}}
                                 mode="contained"
                             ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Change</Text></Button>
                         </View>
@@ -339,11 +356,9 @@ export default function ServiceBooking({ navigation, route }) {
                         address && address.length > 0 ?
                             address.map(item => {
                                 if (item.active) {
-
-
                                     return (
                                         <>
-                                            <TouchableOpacity activeOpacity={0.9} onPress={() => { setAddressLine(item?.addressline1 + ", " + item?.city); setSelectedAddress(item); setBottomSheet(false) }} style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'flex-start', }}>
+                                            <TouchableOpacity activeOpacity={0.9} onPress={() => { selectAdd(item) }} style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'flex-start', }}>
                                                 <MaterialCommunityIcons size={40} color={'#000000'} name={getAddresLogo(item?.type)} />
                                                 <View style={{ flex: 1, paddingLeft: 20 }}>
                                                     <Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{item?.alias ? item?.alias : 'N/A'}</Text>

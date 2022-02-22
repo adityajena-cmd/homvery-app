@@ -22,6 +22,12 @@ const GetBookings = (userId, token) => {
 
     return axios.get(urlConfig.baseURL + `/bookingstatusmaps?_start=0&_limit=30&bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
 };
+const GetAllBookings = (userId, token) => {
+    const header = getUserToken(token);
+
+    return axios.get(urlConfig.baseURL + `/bookingstatusmaps?bookingid.createdby=${userId}&_sort=created_at:DESC`, header);
+};
+
 
 const GetBookingsHomePage = (userId, token) => {
     const header = getUserToken(token);
@@ -56,7 +62,7 @@ const GetOffers = (bookingId, token) => {
     return axios.get(urlConfig.baseURL + `/eligibleoffers?bookingId=${bookingId}`, header);
 };
 
-const GetAllOffers = ( token) => {
+const GetAllOffers = (token) => {
     const header = getUserToken(token);
 
     return axios.get(urlConfig.baseURL + `/offers`, header);
@@ -86,24 +92,35 @@ const UpdatePayment = (body, token) => {
     return axios.put(urlConfig.baseURL + `/booking/paymentCompleted`, body, header);
 }
 
-const GiveReview = (body, token,id) => {
+const GiveReview = (body, token, id) => {
     const header = getUserToken(token);
 
-    return axios.put(urlConfig.baseURL + `/bookings/`+id, body, header);
+    return axios.put(urlConfig.baseURL + `/bookings/` + id, body, header);
+}
+const CreateReview = (body, token) => {
+    const header = getUserToken(token);
+
+    return axios.post(urlConfig.baseURL + `/reviews`, body, header);
 }
 
-const GiveDispute = (body, token,id) => {
+const GiveDispute = (body, token, id) => {
     const header = getUserToken(token);
 
-    return axios.put(urlConfig.baseURL +  `/bookings/`+id, body, header);
+    return axios.put(urlConfig.baseURL + `/bookings/` + id, body, header);
 }
 
-const RescheduleBooking = ( token,body) => {
+const CreateDispute = (body, token) => {
     const header = getUserToken(token);
-  
-    return axios.put(urlConfig.baseURL + '/booking/rescheduleBooking',body, header);
-  };
-  
+
+    return axios.post(urlConfig.baseURL + `/disputes`, body, header);
+}
+
+const RescheduleBooking = (token, body) => {
+    const header = getUserToken(token);
+
+    return axios.put(urlConfig.baseURL + '/booking/rescheduleBooking', body, header);
+};
+
 
 
 export {
@@ -121,5 +138,6 @@ export {
     GetAllOffers,
     CancelBoking,
     RescheduleBooking,
-    GetBookingsHomePage
+    GetBookingsHomePage,
+    GetAllBookings, CreateDispute, CreateReview
 }
