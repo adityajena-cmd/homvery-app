@@ -180,7 +180,7 @@ export default function ServiceBooking({ navigation, route }) {
 
     const selectAdd = (item) =>{
         if(savedCity !== item?.city){
-            ToastAndroid.show("Service not avaialable in this locaiton",ToastAndroid.SHORT)
+            ToastAndroid.show("Service not available in this location",ToastAndroid.SHORT)
 
         }else{
             setAddressLine(item?.addressline1 + ", " + item?.city);

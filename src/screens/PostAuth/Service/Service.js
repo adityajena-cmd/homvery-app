@@ -281,7 +281,7 @@ export default function Service({ navigation, route }) {
           <Text style={{ fontSize: 20, color: '#ffffff' }}>{service?.name}</Text>
           <View style={{ borderRadius: 10, padding: 5, backgroundColor: '#ffffff', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
             <Icon name="star" size={20} color={'#277B3B'} />
-            <Text style={{ fontSize: 15, color: '#277B3B' }}>{rating && rating?.toString()}</Text>
+            <Text style={{ fontSize: 15, color: '#277B3B' }}>{rating && rating.toFixed(1)?.toString()}</Text>
           </View>
         </View>
         <View style={{ backgroundColor: '#ffffff', paddingHorizontal: 15, paddingVertical: 10, borderBottomLeftRadius: 15, borderBottomRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>

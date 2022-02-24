@@ -207,7 +207,7 @@ export default function HomePage({ navigation }) {
                     <AntDesign size={20} name="search1" color='#00b0eb' />
                     <TextInput
                         style={{ width: '70%', color: '#000000', fontSize: 18, paddingLeft: 20 }}
-                        placeholder={'Search City'}
+                        placeholder={'Search Services'}
                         maxLength={50}
                         value={searchtext}
                         onChangeText={searchServices}

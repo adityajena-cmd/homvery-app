@@ -141,6 +141,14 @@ export default function PersonalDetails({ navigation, route }) {
 
 
     const updateUser = () => {
+        if (firstname?.length == 0 || firstname == null || firstname == undefined || firstname === 'NA') {
+            ToastAndroid.show('Enter a Name!', ToastAndroid.SHORT);
+            return;
+        }
+        if (lastname?.length == 0 || lastname == null || lastname == undefined || lastname === 'NA') {
+            ToastAndroid.show('Enter a Name!', ToastAndroid.SHORT);
+            return;
+        }
         if (day?.length == 0 || day == null || day == undefined || day === 'NA') {
             ToastAndroid.show('Enter a Valid Date!', ToastAndroid.SHORT);
             return;
@@ -201,10 +209,10 @@ export default function PersonalDetails({ navigation, route }) {
                     </TouchableOpacity>
                     <View style={{ flexDirection: 'row' }}>
                         <View style={{ paddingRight: 10, flex: 1 }}>
-                            <FormTextInput value={firstname} label="First Name" editable={false} placeholder="First Name" />
+                            <FormTextInput value={firstname} label="First Name"  placeholder="First Name" onChangeText={(text) => { setFirstName(text) }} />
                         </View>
                         <View style={{ paddingLeft: 10, flex: 1 }}>
-                            <FormTextInput value={lastname} label="Last Name" editable={false} placeholder="Last Name" />
+                            <FormTextInput value={lastname} label="Last Name"  placeholder="Last Name" onChangeText={(text) => { setLastname(text) }} />
                         </View>
                     </View>
                     <Text style={{ fontSize: 15, fontWeight: '500', color: '#3e414a', marginBottom: 8 }}>What is your DOB?</Text>

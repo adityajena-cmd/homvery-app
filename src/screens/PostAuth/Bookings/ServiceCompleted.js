@@ -14,6 +14,18 @@ import { TrickImg } from '../../../components/CoinBanner';
 import { TrickModal } from '../Reward/Reward';
 
 export const Invoice = ({ quotationList=[] }) => {
+
+    const getTotal = () =>{
+        let total = 0
+        if(quotationList.length >0){
+            quotationList.forEach(item => {
+                total = total + parseInt(item.cost);
+            })
+        }
+        return total;
+    }
+
+
     const width = Dimensions.get('screen').width;
     return (
         <View style={{ backgroundColor: '#ffffff', borderRadius: 10, elevation: 3, padding: 20 }}>
@@ -34,7 +46,7 @@ export const Invoice = ({ quotationList=[] }) => {
                         </View>
                         {
                             index == 0 ?
-                                <Image style={{ marginLeft: width / 3, position: 'absolute', top: -10, width: width / 5, height: width / 5 }} source={require('../../../assets/paid.png')} />
+                                <Image style={{ marginLeft: width / 3, position: 'absolute', top: 0, width: width / 5, height: width / 5 }} source={require('../../../assets/paid.png')} />
                                 : <></>
 
                         }
@@ -43,7 +55,7 @@ export const Invoice = ({ quotationList=[] }) => {
             <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
             <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
                 <Text style={{ color: '#000000', fontSize: 14, fontWeight: '600' }}>Total Payable Amount</Text>
-                <Text style={{ color: '#000000', fontSize: 14, textAlign: 'right' }}>₹1400</Text>
+                <Text style={{ color: '#000000', fontSize: 14, textAlign: 'right' }}>{'₹'+getTotal().toString()}</Text>
             </View>
         </View>
     )

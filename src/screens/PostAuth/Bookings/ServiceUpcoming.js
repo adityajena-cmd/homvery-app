@@ -26,9 +26,14 @@ export default function ServiceUpcoming({ navigation, route }) {
     const [token, setToken] = React.useState('')
 
     console.log(booking?.bookingid)
-    const updateStatus = (status,assing) => {
+    const updateStatus = (status, assing) => {
 
         switch (status) {
+            case 'BOOKING_CREATED':
+                setStepper(0)
+                setCancel(true)
+                setReschedule(true)
+                break;
             case 'TECHNICIAN_STARTED':
                 setStepper(1)
                 setCancel(false)
@@ -114,8 +119,8 @@ export default function ServiceUpcoming({ navigation, route }) {
                                 GetBookingStatus(booking?.bookingid?.id, items[0][1])
                                     .then(result => {
                                         setRefresh(false)
-                                        if (res.status === 200) {
-                                            updateStatus(result.data[0]?.bookingstatusid?.name,res.data[0])
+                                        if (result.status === 200) {
+                                            updateStatus(result.data[0]?.bookingstatusid?.name, result.data[0])
                                         }
                                     }).catch(err => {
                                         setRefresh(false)
@@ -126,7 +131,18 @@ export default function ServiceUpcoming({ navigation, route }) {
                                 console.log(err)
                             })
                     } else {
-                        console.log("ERR", booking?.bookingid?.assignedto?.id)
+                        GetBookingStatus(booking?.bookingid?.id, items[0][1])
+                            .then(result => {
+                                setRefresh(false)
+                                if (result.status === 200) {
+                                    updateStatus(result.data[0]?.bookingstatusid?.name, result.data[0])
+                                    // console.log(result.data[0]?.bookingstatusid?.name)
+                                }
+                            }).catch(err => {
+                                setRefresh(false)
+
+                                console.log(err)
+                            })
                     }
                 }
             })

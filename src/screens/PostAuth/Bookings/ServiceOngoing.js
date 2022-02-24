@@ -105,7 +105,7 @@ export default function ServiceOngoing({ navigation, route }) {
             paytmPayload.amount,
             paytmPayload.callbackUrl,
             paytmPayload.isStaging,
-            paytmPayload.restrictAppInvoke
+            paytmPayload.restrictAppInvoke 
         )
             .then((result) => {
                 console.log("result", result);
@@ -347,6 +347,8 @@ export default function ServiceOngoing({ navigation, route }) {
                                 mode="contained"
                             ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Make Payment</Text></Button>
                         </View>
+                        :isAccepted && paid?
+                        <></>
                         :
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
                             <Button
