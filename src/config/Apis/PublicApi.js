@@ -4,7 +4,7 @@ import urlConfig from '../config.json';
 
 
 const GetCities = (keyword) => {
-    return axios.get(urlConfig.baseURL + `/locations?name_contains=${keyword}`);
+    return axios.get(urlConfig.baseURL + `/locations?name_contains=${keyword}&active=true`);
 };
 const GetServices = (catID = null) => {
     if (catID) {

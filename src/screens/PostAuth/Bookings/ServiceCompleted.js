@@ -7,17 +7,18 @@ import { getStatus, openBrowser } from '../../../config/Apis/Utils';
 import { Accord } from '../../../components/common/Accordion/Accordion';
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Button } from 'react-native-paper';
 
 import { GetBillingDetails, GetTechinicianServices } from '../../../config/Apis/BookingApi';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { TrickImg } from '../../../components/CoinBanner';
 import { TrickModal } from '../Reward/Reward';
 
-export const Invoice = ({ quotationList=[] }) => {
+export const Invoice = ({ quotationList = [] }) => {
 
-    const getTotal = () =>{
+    const getTotal = () => {
         let total = 0
-        if(quotationList.length >0){
+        if (quotationList.length > 0) {
             quotationList.forEach(item => {
                 total = total + parseInt(item.cost);
             })
@@ -55,7 +56,7 @@ export const Invoice = ({ quotationList=[] }) => {
             <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
             <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
                 <Text style={{ color: '#000000', fontSize: 14, fontWeight: '600' }}>Total Payable Amount</Text>
-                <Text style={{ color: '#000000', fontSize: 14, textAlign: 'right' }}>{'₹'+getTotal().toString()}</Text>
+                <Text style={{ color: '#000000', fontSize: 14, textAlign: 'right' }}>{'₹' + getTotal().toString()}</Text>
             </View>
         </View>
     )
@@ -84,6 +85,8 @@ export default function ServiceCompleted({ navigation, route }) {
     const [quotationList, setQuotationList] = React.useState([])
     const [coins, setCoins] = React.useState(0)
     const [modal, setModal] = React.useState(false)
+    const [reviewGiven, setReviewgiven] = React.useState(true)
+    const [disputeGiven, setDisputeGiven] = React.useState(true)
 
     const [assingedTo, setAssingedTo] = React.useState({})
 
@@ -99,6 +102,13 @@ export default function ServiceCompleted({ navigation, route }) {
     }
     useEffect(() => {
         console.log("ID", booking?.bookingid?.review)
+
+        if (booking?.bookingid?.review === null) {
+            setReviewgiven(false)
+        }
+        if (booking?.bookingid?.dispute === null) {
+            setDisputeGiven(false)
+        }
         AsyncStorage.multiGet(
             ['API_TOKEN', 'USER_ID'],
             (err, items) => {
@@ -112,7 +122,7 @@ export default function ServiceCompleted({ navigation, route }) {
                                     setAssingedTo(res.data[0])
                                 }
                             }).catch(err => {
-                                console.log("EROR PRO===========",err.response.data)
+                                console.log("EROR PRO===========", err.response.data)
                             })
                     }
 
@@ -122,7 +132,7 @@ export default function ServiceCompleted({ navigation, route }) {
                             if (res.status === 200) {
                                 setQuotationList(res.data)
                                 checkCoins(res.data)
-                                
+
                             }
                         }).catch(err => {
                             console.log(err)
@@ -133,16 +143,29 @@ export default function ServiceCompleted({ navigation, route }) {
 
     return (
         <View style={{ backgroundColor: '#F8F8F8', flex: 1 }}>
-             <TrickModal modal={modal} setModal={setModal} />
+            <TrickModal modal={modal} setModal={setModal} />
             <ScrollView>
                 <View style={{ padding: 20 }}>
                     <Accord data={booking} />
                     {assingedTo?.technician && <BookingStatusCard techDetails={assingedTo} status={booking?.bookingstatusid?.name} serviceType={booking?.bookingid?.serviceid?.name} assingedTo={booking?.bookingid?.assignedto} />}
-                    {quotationList.length>0 &&<TrickImg coins={coins} onClick={()=>setModal(true)} />}
-                    {quotationList.length>0 && <Invoice paid={true} quotationList={quotationList} />}
-                    <RatingComp  rating={booking?.bookingid?.review?.rating ? booking?.bookingid?.review?.rating : 0} />
+                    {quotationList.length > 0 && <TrickImg coins={coins} onClick={() => setModal(true)} />}
+                    {quotationList.length > 0 && <Invoice paid={true} quotationList={quotationList} />}
+                    <RatingComp rating={booking?.bookingid?.review?.rating ? booking?.bookingid?.review?.rating : 0} />
                 </View>
             </ScrollView>
+            {<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
+                {!reviewGiven && <Button
+                    onPress={() => { navigation.navigate('Review', { data: booking?.bookingid }) }}
+                    style={{ width: '40%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
+                    mode="contained"
+                ><Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '400' }}>Review</Text>
+                </Button>}
+                {!disputeGiven && <Button onPress={() => { navigation.navigate('Dispute', { data: booking?.bookingid }) }}
+                    style={{ width: '40%', marginVertical: 20, fontSize: 20, backgroundColor: '#F8F8F8', borderColor: '#05194E', borderWidth: 2, borderRadius: 10, paddingVertical: 0 }}
+                    mode="contained"
+                ><Text style={{ color: '#05194E', fontSize: 12, fontWeight: '400' }}>Raise Dispute</Text>
+                </Button>}
+            </View>}
         </View>
     );
 }

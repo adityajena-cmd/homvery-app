@@ -208,6 +208,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 modal={modal}
                 setModal={setModal}
                 onPress={() => {
+                    setModal(false)
                     navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: false, paid: false })
                 }}
             />

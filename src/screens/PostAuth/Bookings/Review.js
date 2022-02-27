@@ -220,9 +220,9 @@ export default function Review({ navigation, route }) {
                 <View style={{ backgroundColor: '#ffffff', padding: 20, borderRadius: 15, display: 'flex', alignContent: 'center', alignItems: 'center', }}>
                     <Image source={require('./../../../assets/reviewed.png')} style={{ width: Dimensions.get('screen').width / 2, height: Dimensions.get('screen').width / 2 }} />
                     <Text style={{ color: '#00B0EB', textAlign: 'center', fontSize: 25, marginVertical: 10, fontWeight: '700' }}>Thank You</Text>
-                    <Text style={{ color: '#000000', textAlign: 'center', width: '70%', fontWeight: '700' }}>Lorem ipsum dolor sit amet, consetetur Lorem ipsum dolor sit amet, consetetur</Text>
+                    <Text style={{ color: '#000000', textAlign: 'center', width: '70%', fontWeight: '700' }}>For providing your valuable feedback</Text>
                     <Button
-                        onPress={() => { navigation.navigate('Homepage') }}
+                        onPress={() => { setModal(false); navigation.navigate('Homepage') }}
                         color="#05194E"
                         loading={loading}
                         disabled={loading}

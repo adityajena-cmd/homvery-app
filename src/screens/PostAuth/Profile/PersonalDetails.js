@@ -150,16 +150,16 @@ export default function PersonalDetails({ navigation, route }) {
             ToastAndroid.show('Enter a Name!', ToastAndroid.SHORT);
             return;
         }
-        if (day?.length == 0 || day == null || day == undefined || day === 'NA') {
+        if (day?.length == 0 || day == null || day == undefined || day === 'NA' || !(parseInt(day)>1 && parseInt(day)<31) ) {
             ToastAndroid.show('Enter a Valid Date!', ToastAndroid.SHORT);
             return;
         }
-        if (month?.length == 0 || month == null || month == undefined || month === 'NA') {
-            ToastAndroid.show('Enter a Valid Date!', ToastAndroid.SHORT);
+        if (month?.length == 0 || month == null || month == undefined || month === 'NA' ||  !(parseInt(month)>1 && parseInt(month)<12)) {
+            ToastAndroid.show('Enter a Valid Month!', ToastAndroid.SHORT);
             return;
         }
-        if (year?.length == 0 || year == null || year == undefined || year === 'NA') {
-            ToastAndroid.show('Enter a Valid Date!', ToastAndroid.SHORT);
+        if (year?.length == 0 || year == null || year == undefined || year === 'NA' ||  !(parseInt(year)>1900 && parseInt(year)<2010)) {
+            ToastAndroid.show('Enter a Valid Year!', ToastAndroid.SHORT);
             return;
         }
         if (email?.length == 0 || email == null || email == undefined || email === 'NA') {

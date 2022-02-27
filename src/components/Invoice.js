@@ -56,26 +56,13 @@ export const Invoice = ({ quotationList, paid, offer = 0 }) => {
                         </View>
                         {
                             index == 0 && paid ?
-                                <Image style={{ marginLeft: width / 3, position: 'absolute', top: -10, width: width / 5, height: width / 5 }} source={require('../assets/paid.png')} />
+                                <Image style={{ marginLeft: width / 3, position: 'absolute', top: 15, width: width / 5, height: width / 5 }} source={require('../assets/paid.png')} />
                                 : <></>
 
                         }
                     </View>)
             })}
-            {discount > 0 &&
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', }}>
-
-                    <View style={{ marginTop: 10, flexDirection: 'row' }}>
-                        <Text style={{ color: '#000000', fontSize: 14 }}>{'Discount'}</Text>
-                    </View>
-
-                    <View style={{ marginTop: 10 }}>
-
-                        <Text style={{ color: '#000000', fontSize: 14, textAlign: 'right' }}>{'-₹ ' + (getDsicount()).toString()}</Text>
-                    </View>
-                </View>
-
-            }
+            
             <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
             <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
                 <Text style={{ color: '#000000', fontSize: 14, fontWeight: '600' }}>Total Payable Amount</Text>

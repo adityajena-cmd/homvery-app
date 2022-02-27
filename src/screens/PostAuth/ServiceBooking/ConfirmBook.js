@@ -7,7 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Loader from '../../../components/Loader';
 import RescheduleModal from '../../../components/RescheduleModal';
 import { CancelBoking, RescheduleBooking } from '../../../config/Apis/BookingApi';
-import { getFullAddress } from '../../../config/Apis/Utils';
+import { copyClipboard, getFullAddress } from '../../../config/Apis/Utils';
 
 export default function ConfirmBooking({ navigation, route }) {
     const width = Dimensions.get('screen').width;
@@ -89,7 +89,7 @@ export default function ConfirmBooking({ navigation, route }) {
                 <View style={{ padding: 20 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', }}>
                         <Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>Booking Details</Text>
-                        <TouchableOpacity onPress={() => { }}><Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{booking?.bookingId}  <MaterialCommunityIcons size={20} name='content-copy' color={'#000000'} /></Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => { copyClipboard(booking?.bookingId) }}><Text style={{ color: '#000000', fontSize: 15, fontWeight: '500' }}>{booking?.bookingId}  <MaterialCommunityIcons size={20} name='content-copy' color={'#000000'} /></Text></TouchableOpacity>
                     </View>
                     <View style={{ height: 1, backgroundColor: '#EAE2E2', marginTop: 10 }} />
                     <View style={{ padding: 20 }}>

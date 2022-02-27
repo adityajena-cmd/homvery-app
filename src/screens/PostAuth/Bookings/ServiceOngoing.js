@@ -320,11 +320,11 @@ console.log("getASSING",route.params?.assingedTo)
                 }>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
-                    {route.params?.assingedTo && <BookingStatusCard
-                        techDetails={route.params?.assingedTo}
+                    {route?.params?.assingedTo && <BookingStatusCard
+                        techDetails={route?.params?.assingedTo}
                         status={booking?.bookingstatusid?.name}
                         serviceType={booking?.bookingid?.serviceid?.name}
-                        assingedTo={route.params?.assingedTo}
+                        assingedTo={booking?.bookingid?.assignedto}
                     />}
                     {coins > 0 && <TrickImg coins={coins} onClick={() => setModal(true)} />}
                   {!isAccepted &&  <Coupon

@@ -21,7 +21,7 @@ export const BookingStatusCard = ({ assingedTo, techDetails, status, serviceType
                     {techDetails?.technician?.profilepic ? <Image source={techDetails?.technician?.profilepic ? { uri: techDetails?.technician?.profilepic?.url } : require('../assets/user.png')} style={{ height: 50, width: 50, borderRadius: 25 }} />:
                     getInitials(assingedTo?.firstname , assingedTo?.lastname,30)}
                     <View style={{ marginLeft: 10 }}>
-                        <Text style={{ color: '#000000', fontSize: 13, marginBottom: 1, fontWeight: '600', width: width / 3.5 }} numberOfLines={1}>{assingedTo?.id ? assingedTo?.firstname + " " + assingedTo?.lastname : 'N/A'}</Text>
+                        <Text style={{ color: '#000000', fontSize: 13, marginBottom: 1, fontWeight: '600', width: width / 3.5 }} numberOfLines={1}>{assingedTo?.firstname ? assingedTo?.firstname + " " + assingedTo?.lastname : 'N/A'}</Text>
                         <Text style={{ color: '#9d9d9d', fontSize: 10, marginBottom: 1, fontWeight: '600', width: width / 3.5 }} numberOfLines={1}>{serviceType}</Text>
                         <View style={{ display: 'flex', flexDirection: 'row' }}>
                             <View style={{ backgroundColor: '#277B3B', paddingHorizontal: 5, borderRadius: 5, paddingVertical: 2, }}>

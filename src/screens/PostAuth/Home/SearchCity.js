@@ -11,7 +11,7 @@ const StyleObj = AppDesign.SearchCity
 function CityComp({ name, img, onPress }) {
     return (
         <TouchableOpacity style={StyleObj.s1} onPress={() => { onPress(name) }}>
-            <Image source={img ? { uri: urlConfig.baseURL + img } : require('../../../assets/thumbnail-sqr.png')} style={StyleObj.s2} />
+            <Image source={img ? { uri:  img } : require('../../../assets/thumbnail-sqr.png')} style={StyleObj.s2} />
             <Text style={StyleObj.s3}>{name}</Text>
         </TouchableOpacity>
     )
@@ -63,7 +63,7 @@ export default function SearchCity({ navigation, route }) {
                     nestedScrollEnabled={true}
                     data={cities}
                     numColumns={3}
-                    renderItem={({ item }) => <CityComp name={item.name} img={item?.displayPic?.url} onPress={(name) => onCityCLick(name)} />}
+                    renderItem={({ item }) => <CityComp name={item.name} img={item?.displayPic?.formats?.small?.url} onPress={(name) => onCityCLick(name)} />}
                 />
             </View>
             <Text style={StyleObj.s7}>Search more city</Text>

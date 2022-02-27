@@ -65,7 +65,7 @@ const GetOffers = (bookingId, token) => {
 const GetAllOffers = (token) => {
     const header = getUserToken(token);
 
-    return axios.get(urlConfig.baseURL + `/offers`, header);
+    return axios.get(urlConfig.baseURL + `/offers?fromDate_lte=${new Date().toISOString()}&toDate_gte=${new Date().toISOString()}&newuser=false`, header);
 };
 
 const AcceptQuotation = (body, token) => {
