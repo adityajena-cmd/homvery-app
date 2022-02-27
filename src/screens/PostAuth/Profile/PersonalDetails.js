@@ -72,6 +72,7 @@ export default function PersonalDetails({ navigation, route }) {
                 }
             }).catch(err => {
                 console.log("Upload", err.response.data)
+                alert('Some Error Occured ! Uploading Failed.')
 
             })
     }
@@ -169,7 +170,7 @@ export default function PersonalDetails({ navigation, route }) {
         //     ToastAndroid.show('Enter a Valid Phone Number!', ToastAndroid.SHORT);
         //     return;
         // }
-        if (alternatephonenumber?.length == 0 || alternatephonenumber == null || alternatephonenumber == undefined || alternatephonenumber === 'NA' || !/^[789]\d{9}$/.test(alternatephonenumber)) {
+        if (alternatephonenumber?.length == 0 || alternatephonenumber == null || alternatephonenumber == undefined || alternatephonenumber === 'NA' || !/^[6789]\d{9}$/.test(alternatephonenumber)) {
             ToastAndroid.show('Enter a Valid Phone Number!', ToastAndroid.SHORT);
             return;
         }

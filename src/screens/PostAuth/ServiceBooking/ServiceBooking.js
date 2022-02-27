@@ -29,7 +29,7 @@ export default function ServiceBooking({ navigation, route }) {
 
     const width = Dimensions.get('screen').width;
 
-    const [preferedTime, setPreferedTime] = React.useState(0);
+    const [preferedTime, setPreferedTime] = React.useState(-1);
     const [problem, setProblem] = React.useState(0);
     const [issue, setIssue] = React.useState('');
     const [savedCity, setSavedCity] = React.useState('');
@@ -194,7 +194,6 @@ export default function ServiceBooking({ navigation, route }) {
         setLoading(true)
         const body = {
             "totime": toDate,
-            "approval_status": "PENDING",
             "serviceid": service?.id,
             "bookingId": 'HV' + (Math.floor(1000000 + Math.random() * 9000000)).toString(),
             "address": selectedAddress,
@@ -308,7 +307,7 @@ export default function ServiceBooking({ navigation, route }) {
                     <Button onPress={() => {
                         setBottomSheet2(true)
                     }}
-                        disabled={selectedAddress?.city === undefined}
+                        disabled={selectedAddress?.city === undefined || fromDate === null || toDate === null}
                         color='#05194E'
                         style={{ width: '70%', marginVertical: 20, fontSize: 20, borderRadius: 10, paddingVertical: 0 }}
                         mode="contained"

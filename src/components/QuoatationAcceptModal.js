@@ -5,7 +5,7 @@ import { Image, View } from "react-native";
 import Modal from 'react-native-modal';
 import { Button } from "react-native-paper";
 
-const QuotationAcceptModal = ({ modal, setModal,onPress }) => {
+const QuotationAcceptModal = ({ modal,onBackDrop=()=>{}, setModal,onPress }) => {
     return (
         <Modal
             isVisible={modal}
@@ -15,7 +15,7 @@ const QuotationAcceptModal = ({ modal, setModal,onPress }) => {
             animationType="fadeIn"
             swipeDirection={[]}
             onSwipeComplete={() => {  }}
-            onBackdropPress={() => {  }}
+            onBackdropPress={onBackDrop}
             style={{ margin: 30, justifyContent: "center", }}>
             <View style={{ backgroundColor: '#ffffff', padding: 20, borderRadius: 15, display: 'flex', alignContent: 'center', alignItems: 'center', }}>
                 <Image source={require('../assets/quot1.png')} style={{ width: Dimensions.get('screen').width / 2, height: Dimensions.get('screen').width / 2 }} />

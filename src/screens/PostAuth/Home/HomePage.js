@@ -10,10 +10,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetLocalAdSliders, GetServices, GetTopSliders, GetVideoSliders } from '../../../config/Apis/PublicApi';
 import urlConfig from '../../../config/config.json'
 import Loader from '../../../components/Loader';
-import { openBrowser } from '../../../config/Apis/Utils';
+import { openBrowser, openPhone } from '../../../config/Apis/Utils';
 import { GetBookingsHomePage } from '../../../config/Apis/BookingApi';
 import { BookingCard } from '../../../components/BookingCard';
 import { RefreshControl } from 'react-native';
+import QuotationAcceptModal from '../../../components/QuoatationAcceptModal';
+import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
 
 export default function HomePage({ navigation }) {
     const [modal, setModal] = React.useState(false);
@@ -27,6 +30,8 @@ export default function HomePage({ navigation }) {
     const [currentBooking, setCurrentBookings] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const [searchtext, setSearchText] = React.useState('');
+    const [quotedBooking,setQuotedBooking] = React.useState({})
+
 
     let cureentCity = ''
     const filterServicesByCity = (services_new, cityId) => {
@@ -98,10 +103,29 @@ export default function HomePage({ navigation }) {
         }
     }
 
-    React.useEffect(() => {
-        // setTimeout(()=>{setModal(true)},2000)
+    
+    const getModal = (token,user) =>{
+       
+        axios.get(`http://homvery-dev.us-west-2.elasticbeanstalk.com:1337/bookingstatusmaps?bookingid.createdby=${user}&bookingid.approval_status=PENDING&_sort=id:DESC&bookingstatusid.name=QUOTATION_CREATED`,{
+            headers:{
+                Authorization: 'Bearer ' + token,
+            }
+        }).then(res=>{
+            if(res.status === 200 && res.data.length > 0){
+                console.log("booking ==================",res.data[0])
+                setQuotedBooking(res.data[0])
+                setModal(true)
+            }
+        }).catch(err=>{
+            console.log('err',err)
+        })
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
         getSliders()
         setLoading(true)
+        
         AsyncStorage.multiGet(['CITY', 'API_TOKEN', 'USER_ID'], (err, items) => {
             if (err) {
                 console.log("ERROR===================", err);
@@ -109,7 +133,7 @@ export default function HomePage({ navigation }) {
                 console.log("DOOM===============", items)
                 cureentCity = items[0][1]
                 setCity(items[0][1])
-
+                getModal(items[1][1],items[2][1])
                 if (items[1][1] !== null && items[2][1] !== null) {
                     GetBookingsHomePage(items[2][1], items[1][1])
                         .then(res => {
@@ -123,6 +147,7 @@ export default function HomePage({ navigation }) {
                                     }
                                 })
                                 setCurrentBookings(bookings.filter(getCurrent))
+                                
                             }
                         }).catch(err => {
                             console.log(err)
@@ -145,7 +170,7 @@ export default function HomePage({ navigation }) {
             }
         })
 
-    }, [load])
+    }, [load]))
 
 
 
@@ -178,6 +203,15 @@ export default function HomePage({ navigation }) {
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <Loader loading={loading} />
+            <QuotationAcceptModal
+                modal={modal}
+                onBackDrop={()=>setModal(false)}
+                setModal={setModal}
+                onPress={() => {
+                    setModal(false);
+                    navigation.navigate('ServiceOngoing', { data: quotedBooking, assingedTo: quotedBooking.bookingid.assignedto, isAccepted: false, paid: false })
+                }}
+            />
             <StatusBar backgroundColor={'#25A8DE'} barStyle={'light-content'} />
             <ScrollView refreshControl={
                 <RefreshControl
@@ -189,10 +223,10 @@ export default function HomePage({ navigation }) {
                     <View style={{ paddingHorizontal: 20, paddingTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center', }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center' }}>
                             <Icon onPress={() => {
-                                navigation.navigate('SearchCity')
+                                navigation.navigate('SearchCity',{goBack:true})
                             }} name="map-marker" size={25} color={'#ffffff'} />
                             <Text onPress={() => {
-                                navigation.navigate('SearchCity')
+                                navigation.navigate('SearchCity',{goBack:true})
                             }} style={{ color: '#ffffff', fontSize: 15 }}>{city}</Text>
                         </View>
                         <Icon name="bell" size={25} color={'#ffffff'} />
@@ -217,7 +251,7 @@ export default function HomePage({ navigation }) {
                 </View>
                 {topSliders.length > 0 && <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {topSliders.length > 0 && topSliders.map(item => {
-                        return <Image resizeMode='cover' style={{ width: 255, marginLeft: 10, height: 125 }} source={item?.image && item?.image?.url ? { uri: item?.image?.url } : require('../../../assets/home1.png')} />
+                        return <Image resizeMode='cover'  style={{ width: 255, marginLeft: 10, height: 125,borderRadius:12 }} source={item?.image?.formats?.small && item?.image?.formats?.small?.url ? { uri: item?.image?.formats?.small?.url  } : require('../../../assets/home1.png')} />
                     })
 
                     }
@@ -247,7 +281,7 @@ export default function HomePage({ navigation }) {
                             console.log("pic---------------", item?.category?.name)
                             if (item?.category?.name === "Services") {
                                 return (<ServiceBtn
-                                    image={item.displayPic?.url ? { uri: urlConfig.baseURL + item.displayPic?.url } : require('../../../assets/s1.png')}
+                                    image={item.displayPic?.url ? { uri: item.displayPic?.url } : require('../../../assets/s1.png')}
                                     text={item.name}
 
                                     onPress={() => { navigation.navigate('Service', { data: item }) }}
@@ -267,7 +301,7 @@ export default function HomePage({ navigation }) {
                             console.log("pic---------------", item?.category?.name)
                             if (item?.category?.name === "Individual") {
                                 return (<ServiceBtn
-                                    image={item.displayPic?.url ? { uri: urlConfig.baseURL + item.displayPic?.url } : require('../../../assets/s1.png')}
+                                    image={item.displayPic?.url ? { uri:  item.displayPic?.url } : require('../../../assets/s1.png')}
                                     text={item.name}
 
                                     onPress={() => { navigation.navigate('Service', { data: item }) }}
@@ -371,83 +405,12 @@ export default function HomePage({ navigation }) {
                         }
                     </ScrollView>}
             </ScrollView>
-            <TouchableOpacity style={{ position: 'absolute', zIndex: 99, elevation: 5, width: Dimensions.get('screen').width / 7, height: Dimensions.get('screen').width / 7, backgroundColor: '#00B0EB', borderRadius: 1000, display: 'flex', justifyContent: 'center', alignContent: 'center', alignItems: 'center', bottom: 20, right: 20 }}>
+            <TouchableOpacity
+            onPress={()=>openPhone('+917853802121')} 
+            style={{ position: 'absolute', zIndex: 99, elevation: 5, width: Dimensions.get('screen').width / 7, height: Dimensions.get('screen').width / 7, backgroundColor: '#00B0EB', borderRadius: 1000, display: 'flex', justifyContent: 'center', alignContent: 'center', alignItems: 'center', bottom: 20, right: 20 }}>
                 <Icon name="headset" size={Dimensions.get('screen').width / 15} color={'#ffffff'} />
             </TouchableOpacity>
-            <Modal
-                isVisible={modal}
-                hasBackdrop={true}
-                backdropOpacity={0.3}
-                backdropColor={"#000000"}
-                animationType="fadeIn"
-                swipeDirection={['down', "up", "left", "right"]}
-                onSwipeComplete={() => { setModal(false) }}
-                onBackdropPress={() => { setModal(false) }}
-                style={{ margin: 30, justifyContent: "center", }}>
-                <View style={{ backgroundColor: '#ffffff', padding: 20, borderRadius: 15, display: 'flex', alignContent: 'center', alignItems: 'center', }}>
-                    <Image source={require('./../../../assets/quot1.png')} style={{ width: Dimensions.get('screen').width / 2, height: Dimensions.get('screen').width / 2 }} />
-                    <Text style={{ color: '#000000', textAlign: 'center', fontSize: 20, marginVertical: 10, fontWeight: '600' }}>Quotation has been shared</Text>
-                    <Text style={{ color: '#000000', textAlign: 'center', width: '70%', fontWeight: '400' }}>Please review and accept the payment details</Text>
-                    <Button
-                        onPress={() => { setModal(false); setModal1(true); }}
-                        style={{ width: '100%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
-                        mode="contained">
-                        <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Done</Text>
-                    </Button>
-                </View>
-            </Modal>
-            <Modal
-                isVisible={modal1}
-                hasBackdrop={true}
-                backdropOpacity={0.3}
-                backdropColor={"#000000"}
-                animationType="fadeIn"
-                swipeDirection={['down', "up", "left", "right"]}
-                onSwipeComplete={() => { setModal1(false) }}
-                onBackdropPress={() => { setModal1(false) }}
-                style={{ margin: 30, justifyContent: "center", }}>
-                <View style={{ backgroundColor: '#ffffff', paddingHorizontal: 30, paddingTop: 20, borderRadius: 15, display: 'flex', alignContent: 'center', alignItems: 'center', }}>
-                    <Image source={require('./../../../assets/quot2.png')} style={{ width: Dimensions.get('screen').width / 4, height: Dimensions.get('screen').width / 2 }} />
-                    <Text style={{ color: '#000000', textAlign: 'center', fontSize: 20, marginVertical: 10, fontWeight: '600' }}>We are sorry to hear that!</Text>
-                    <Text style={{ color: '#000000', textAlign: 'center', width: '100%', fontWeight: '400' }}>Please specify reason for the rejection, so that we can improve our service next time</Text>
-
-                    <View style={{ width: '100%' }}>
-
-                        <View style={{ height: 1, backgroundColor: '#DCEBF7', marginVertical: 20 }} />
-                        {
-                            data3.map((item) => {
-                                return (
-                                    <BouncyCheckbox
-                                        key={item}
-                                        size={25}
-                                        fillColor="#00B0EB"
-                                        unfillColor="#FFFFFF"
-                                        text={item}
-                                        iconStyle={{ borderColor: "#00B0EB", borderRadius: 5 }}
-                                        textStyle={{ textDecorationLine: "none", fontSize: 12 }}
-                                        style={{ marginBottom: 10 }}
-                                        onPress={() => { }}
-                                    />
-                                )
-                            })
-                        }
-                        <TextInput
-                            style={{ height: Dimensions.get('screen').width / 4, backgroundColor: '#ffffff', borderRadius: 10, marginTop: 10, paddingHorizontal: 15, paddingVertical: 10, borderColor: '#cccccc', borderRadius: 10, borderWidth: 1 }}
-                            multiline={true}
-                            textAlignVertical='top'
-                            placeholder='Other Reason'
-                            placeholderTextColor={'#ddd'}
-                        />
-                    </View>
-
-                    <Button
-                        onPress={() => { setModal1(false) }}
-                        style={{ width: '100%', marginVertical: 20, fontSize: 20, backgroundColor: '#05194E', borderRadius: 10, paddingVertical: 0 }}
-                        mode="contained">
-                        <Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Submit</Text>
-                    </Button>
-                </View>
-            </Modal>
+         
         </View>
     );
 }

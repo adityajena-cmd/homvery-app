@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, Alert, Share } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -146,7 +146,7 @@ export default function Profile({ navigation }) {
             title: 'About Us',
             isLog: true,
             subTitle: 'See about homvery and privacy policy',
-            onPress: () => { navigation.navigate('AboutUs') },
+            onPress: () => { navigation.navigate('AboutUs',{privacy:links.privacypolicy}) },
             icon: <AntDesign name='questioncircleo' size={36} color={'#DADADA'} />
         },
         {
@@ -174,14 +174,14 @@ export default function Profile({ navigation }) {
             title: 'Rate Homvery',
             isLog: true,
             subTitle: 'Provide rating on playstore',
-            onPress: () => { },
+            onPress: () => { openBrowser(links?.playstoreurl)},
             icon: <MaterialCommunityIcons name='map-marker' size={36} color={'#DADADA'} />
         },
         {
             title: 'Share Homvery',
             subTitle: 'Share Homevery',
             isLog: true,
-            onPress: () => { },
+            onPress: () => {Share.share({message:"Homevery App.\n"+links?.playstoreurl}) },
             icon: <AntDesign name='sharealt' size={36} color={'#DADADA'} />
         },
     ]
@@ -195,7 +195,7 @@ export default function Profile({ navigation }) {
             <View style={{ backgroundColor: '#00B0EB', padding: 20 }}>
                 <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 20 }}>My Profile</Text>
             </View>
-            {isLogin ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'flex-start', padding: 20, elevation: 7, backgroundColor: '#ffffff' }}>
+            {isLogin && user?.firstname  ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'flex-start', padding: 20, elevation: 7, backgroundColor: '#ffffff' }}>
                 <View>
                     <Image style={{ height: width / 4 - 20, width: width / 4 - 20, borderRadius: width }}
                         source={user?.profilepic && {

@@ -65,7 +65,7 @@ export default function ServiceUpcoming({ navigation, route }) {
                 setStepper(4)
                 setCancel(false)
                 setReschedule(false)
-                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assingedTo, isAccepted: true, paid: true })
+                navigation.navigate('ServiceOngoing', { data: booking, assingedTo: assing, isAccepted: true, paid: true })
 
                 break;
             case 'BOOKING_COMPLETED':
@@ -108,7 +108,10 @@ export default function ServiceUpcoming({ navigation, route }) {
                 if (err) {
                     console.log("ERROR===================", err);
                 } else {
+                    console.log("first",booking?.bookingid?.assignedto)
                     setToken(items[0][1])
+                    console.log(items[0][1])
+                    console.log("assing0------------000",booking?.bookingid?.assignedto)
                     if (booking?.bookingid?.assignedto !== null) {
                         GetTechinicianServices(booking?.bookingid?.assignedto?.id, items[0][1])
                             .then(res => {

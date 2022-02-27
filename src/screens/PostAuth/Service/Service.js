@@ -148,7 +148,7 @@ function Screen3({ reviews }) {
                 <Text style={{ fontWeight: '400', fontSize: 10, color: '#707070', marginVertical: 10 }}>{item?.comments ? item.comments : ''}</Text>
               </View>
             )) :
-            <></>
+            <Text style={{marginTop:10,fontSize:16,fontWeight:"600",textAlign:'center'}}>No Reviews Yet.</Text>
         }
         <View style={{ height: 1, backgroundColor: '#F8F8F8', marginVertical: 10 }} />
       </ScrollView>

@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import { openBrowser } from '../../../config/Apis/Utils';
 
-export default function AboutUs() {
+export default function AboutUs({navigation,route}) {
     const width = Dimensions.get('screen').width;
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
@@ -36,7 +37,7 @@ export default function AboutUs() {
                             </Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={{marginTop: 20}}>
+                    <TouchableOpacity onPress={()=>openBrowser(route?.params?.privacy)} style={{marginTop: 20}}>
                         <View style={{ height: 1, backgroundColor: '#EAE2E2', }} />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
                             <Text style={{ color: '#000000', textAlign: 'center', fontSize: 15, fontWeight: '600', marginVertical: 10 }}>

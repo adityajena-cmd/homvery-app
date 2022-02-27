@@ -43,7 +43,7 @@ export const FormTextInput = (props) => {
 const FormDropDown = (props) => {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState(props.value);
-    const { label } = props;
+    const { label, disabled } = props;
     useEffect(() => {
         setValue(props.value)
     }, [props.value])
@@ -54,6 +54,7 @@ const FormDropDown = (props) => {
                 label && <Text style={{ fontSize: 15, fontWeight: '500', color: '#3e414a', marginBottom: 8 }}>{label}</Text>
             }
             <DropDownPicker
+                disabled={disabled}
                 dropDownDirection="TOP"
                 style={{ borderColor: '#00B0EB', borderWidth: 1 }}
                 showTickIcon={false}
@@ -75,6 +76,15 @@ const FormDropDown = (props) => {
                 selectedItemLabelStyle={{
                     color: "#ffffff"
                 }}
+                modalProps={{
+                    animationType: "fade"
+                }}
+                modalTitle="Select an item"
+                modalContentContainerStyle={{
+                    backgroundColor: "#fff",
+                    
+                }}
+                listMode="MODAL"
                 open={open}
                 value={value}
                 items={props.items}
@@ -90,6 +100,7 @@ export default function AddressEditPage({ navigation, route }) {
         DropDownPicker.setListMode("SCROLLVIEW");
     }, []);
     let initialVal = route?.params?.initialValue
+
 
     const [title, setTitle] = useState(initialVal ? initialVal.alias : '');
     const [flat, setFlat] = useState(initialVal ? initialVal.flat : '');
@@ -352,13 +363,12 @@ export default function AddressEditPage({ navigation, route }) {
                     <FormTextInput placeholder="Full Address here" value={addressLine} onChangeText={(txt) => { setaddressLine(txt) }} />
                     <View style={{ flexDirection: 'row', }}>
                         <View style={{ flex: 1, paddingRight: 10 }}>
-                            <FormDropDown label="City" value={city} items={items} setItems={setCityItems} />
+                            <FormDropDown disabled={initialVal?.city === undefined ? false : true} label="City" value={city} items={items} setItems={setCityItems} />
                         </View>
                         <View style={{ flex: 1, paddingLeft: 10 }}>
-                            <FormDropDown label="Zip code" value={pincode} items={zips} setItems={setZipItems} />
+                            <FormDropDown disabled={initialVal?.city === undefined ? false : true} label="Zip code" value={pincode} items={zips} setItems={setZipItems} />
                         </View>
                     </View>
-
 
                     <FormTextInput label="Mobile"
                         maxLength={10}

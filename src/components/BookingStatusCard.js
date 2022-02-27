@@ -18,7 +18,7 @@ export const BookingStatusCard = ({ assingedTo, techDetails, status, serviceType
             <View style={{ height: 1.5, backgroundColor: '#DCEBF7', marginVertical: 10 }} />
             <View style={{ paddingVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', flex: 1 }}>
-                    {techDetails?.technician?.profilepic ? <Image source={techDetails?.technician?.profilepic ? { uri: techDetails?.technician?.profilepic?.url } : require('../assets/user.png')} resizeMode='contain' style={{ height: 50, width: 50, borderRadius: 25 }} />:
+                    {techDetails?.technician?.profilepic ? <Image source={techDetails?.technician?.profilepic ? { uri: techDetails?.technician?.profilepic?.url } : require('../assets/user.png')} style={{ height: 50, width: 50, borderRadius: 25 }} />:
                     getInitials(assingedTo?.firstname , assingedTo?.lastname,30)}
                     <View style={{ marginLeft: 10 }}>
                         <Text style={{ color: '#000000', fontSize: 13, marginBottom: 1, fontWeight: '600', width: width / 3.5 }} numberOfLines={1}>{assingedTo?.id ? assingedTo?.firstname + " " + assingedTo?.lastname : 'N/A'}</Text>

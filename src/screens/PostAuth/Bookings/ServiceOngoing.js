@@ -5,7 +5,7 @@ import { Button } from 'react-native-paper';
 import { Accord } from '../../../components/common/Accordion/Accordion';
 import { BookingStatusCard } from '../../../components/BookingStatusCard';
 import { validatePathConfig } from '@react-navigation/native';
-import { AcceptQuotation, GetBillingDetails, GetBookingStatus, RejectQuotation, UpdatePayment } from '../../../config/Apis/BookingApi';
+import { AcceptQuotation, GetBillingDetails, GetBookingStatus, GetOffers, RejectQuotation, UpdatePayment } from '../../../config/Apis/BookingApi';
 import { Invoice } from '../../../components/Invoice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
@@ -20,10 +20,10 @@ const data3 = [
     "Price is on higher sidet", "Not satisfied with technician", "Delay in service", "Others"
 ]
 
-export const Coupon = ({ navigation, onSelect, bookingId, copoun, isAccepted }) => {
+export const Coupon = ({ navigation,count, onSelect, bookingId, copoun, isAccepted }) => {
 
 
-    return <TouchableOpacity onPress={() => { !isAccepted && navigation.navigate('CouponCode', { bookingId: bookingId, onSelect: onSelect }) }} style={{ padding: 20, backgroundColor: '#ffffff', borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', marginBottom: 10, elevation: 2 }}>
+    return <TouchableOpacity onPress={() => { !isAccepted && count >0 && navigation.navigate('CouponCode', { bookingId: bookingId, onSelect: onSelect }) }} style={{ padding: 20, backgroundColor: '#ffffff', borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', marginBottom: 10, elevation: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', }}>
             <Image source={require('../../../assets/coupon.png')} />
             <View style={{ marginLeft: 20 }}>
@@ -33,7 +33,7 @@ export const Coupon = ({ navigation, onSelect, bookingId, copoun, isAccepted }) 
                     :
                     <>
                         <Text style={{ color: '#000000', fontWeight: '600', fontSize: 14 }}>Apply Coupon</Text>
-                        <Text style={{ color: '#707070', fontWeight: '400', fontSize: 12 }}>3 offers available</Text>
+                        <Text style={{ color: '#707070', fontWeight: '400', fontSize: 12 }}>{count > 0 ?count+' offers available':'No Offers Available'}</Text>
                     </>
                 }
             </View>
@@ -59,7 +59,8 @@ export default function ServiceOngoing({ navigation, route }) {
     const [modal, setModal] = React.useState(false)
     const [completed, setCompleted] = React.useState(false)
     const [load, setLoad] = React.useState(0)
-
+    const [coupoun, setCoupoun] = React.useState(0)
+console.log("getASSING",route.params?.assingedTo)
 
 
     const updateTransaction = (ptmBody, isSuccess) => {
@@ -181,6 +182,7 @@ export default function ServiceOngoing({ navigation, route }) {
             case 'PAYMENT_COMPLETED':
                 setAccepted(true)
                 setPaid(true)
+                
                 break;
             case 'BOOKING_COMPLETED':
                 setCompleted(true)
@@ -234,6 +236,20 @@ export default function ServiceOngoing({ navigation, route }) {
 
                             console.log(err)
                         })
+                        GetOffers(booking?.bookingid?.id, items[0][1])
+                        .then(res => {
+                          setLoading(false)
+        
+                          console.log(res.data)
+                          if (res.status === 200) {
+                           setCoupoun(res.data.length)
+          
+                          }
+                        }).catch(err => {
+                          setLoading(false)
+                          console.log(err)
+          
+                        })
                 }
             })
     }, [load])
@@ -272,14 +288,15 @@ export default function ServiceOngoing({ navigation, route }) {
             "bookingId": booking?.bookingid?.id,
             "comments": commentsReject
         }
-        RejectQuotation(body, token(res => {
+        RejectQuotation(body, token)
+        .then(res => {
             setLoading(false)
 
             if (res.status === 200) {
                 setLoad(load + 1)
                 // setRejectModal(false)
             }
-        })).catch(err => {
+        }).catch(err => {
             setLoading(false)
             ToastAndroid.show("Some Error Occured!", ToastAndroid.SHORT)
             console.log("reject error----------------", err)
@@ -303,21 +320,22 @@ export default function ServiceOngoing({ navigation, route }) {
                 }>
                 <View style={{ padding: 20 }}>
                     <Accord data={route?.params?.data} />
-                    {route.params?.assingedTo?.technician && <BookingStatusCard
+                    {route.params?.assingedTo && <BookingStatusCard
                         techDetails={route.params?.assingedTo}
                         status={booking?.bookingstatusid?.name}
                         serviceType={booking?.bookingid?.serviceid?.name}
-                        assingedTo={booking?.bookingid?.assignedto}
+                        assingedTo={route.params?.assingedTo}
                     />}
                     {coins > 0 && <TrickImg coins={coins} onClick={() => setModal(true)} />}
-                    <Coupon
+                  {!isAccepted &&  <Coupon
                         isAccepted={isAccepted}
                         copoun={coupon}
+                        count={coupoun}
                         bookingId={booking?.bookingid?.id} navigation={navigation} onSelect={(obj) => {
                             setCopoun(obj);
                             console.log(obj?.percentage)
                             setDiscount(obj?.percentage && !isAccepted ? obj?.percentage : 0)
-                        }} />
+                        }} />}
                     {quotationList.length > 0 ? <Invoice offer={discount} quotationList={quotationList} paid={paid} /> : <></>}
                 </View>
 
@@ -348,7 +366,7 @@ export default function ServiceOngoing({ navigation, route }) {
                             ><Text style={{ color: '#ffffff', fontSize: 20, fontWeight: '400' }}>Make Payment</Text></Button>
                         </View>
                         :isAccepted && paid?
-                        <></>
+                        <Text style={{textAlign:'center',fontSize:18,fontWeight:'600',marginBottom:20}}>Technician work in progress ......</Text>
                         :
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignContent: 'center', alignItems: 'center', elevation: 20, zIndex: 20, backgroundColor: '#F8F8F8', paddingHorizontal: 20 }}>
                             <Button
@@ -378,7 +396,7 @@ export default function ServiceOngoing({ navigation, route }) {
                 onBackdropPress={() => { setRejectModal(false) }}
                 style={{ margin: 30, justifyContent: "center", }}>
                 <View style={{ backgroundColor: '#ffffff', paddingHorizontal: 30, paddingTop: 20, borderRadius: 15, display: 'flex', alignContent: 'center', alignItems: 'center', }}>
-                    <Image source={require('./../../../assets/quot2.png')} style={{ width: Dimensions.get('screen').width / 4, height: Dimensions.get('screen').width / 2 }} />
+                    <Image source={require('./../../../assets/quot2.png')} style={{ width: Dimensions.get('screen').width / 4 , height: Dimensions.get('screen').width / 2 }} />
                     <Text style={{ color: '#000000', textAlign: 'center', fontSize: 20, marginVertical: 10, fontWeight: '600' }}>We are sorry to hear that!</Text>
                     <Text style={{ color: '#000000', textAlign: 'center', width: '100%', fontWeight: '400' }}>Please specify reason for the rejection, so that we can improve our service next time</Text>
 
@@ -398,7 +416,7 @@ export default function ServiceOngoing({ navigation, route }) {
                                         textStyle={{ textDecorationLine: "none", fontSize: 12 }}
                                         style={{ marginBottom: 10 }}
                                         onPress={(checked) => {
-
+                                            
                                         }}
                                     />
                                 )
