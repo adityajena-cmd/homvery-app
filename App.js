@@ -11,13 +11,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {AppRouter} from './src/navigation';
+import { SafeAreaView } from 'react-native';
 
 const App = () => {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <AppRouter />
-      </NavigationContainer>
+      <SafeAreaView style={{ flex: 1 }}>
+        <NavigationContainer>
+          <AppRouter />
+        </NavigationContainer>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 };
